@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
-
+import www from '../images/www.webp';
+import abi from '../images/abi.webp';
+import ceo from '../images/ceo.webp';
+import soe from '../images/yuva.webp';
 const About = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(0);
@@ -112,7 +115,7 @@ const About = () => {
       bio: "30+ years in banking and financial services. Former Federal Reserve advisor and banking industry pioneer.",
       expertise: ["Strategic Leadership", "Risk Management", "Financial Regulation"],
       color: "from-blue-500 to-cyan-600",
-     
+      image: soe
     },
     {
       name: "Dr. Maria Rodriguez",
@@ -120,7 +123,7 @@ const About = () => {
       bio: "Ph.D. in Financial Economics with extensive experience in asset management and financial strategy.",
       expertise: ["Financial Strategy", "Asset Management", "Risk Assessment"],
       color: "from-green-500 to-emerald-600",
-     
+      image: abi
     },
     {
       name: "Robert Chen",
@@ -128,7 +131,7 @@ const About = () => {
       bio: "FinTech expert with background in cybersecurity and digital transformation for financial institutions.",
       expertise: ["Digital Banking", "Cybersecurity", "Financial Technology"],
       color: "from-purple-500 to-violet-600",
-   
+      image: www
     },
     {
       name: "Sarah Johnson",
@@ -136,7 +139,7 @@ const About = () => {
       bio: "Former banking regulator with 20+ years experience in financial compliance and risk management.",
       expertise: ["Regulatory Compliance", "Risk Management", "Financial Oversight"],
       color: "from-red-500 to-orange-600",
-      
+      image: ceo
     }
   ];
 
@@ -331,71 +334,75 @@ const About = () => {
           </div>
         </section>
 
-        {/* Leadership Team Section */}
-        <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mb-4 animate-fade-in-up">
-              Executive Leadership Team
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-              Meet the experienced financial professionals leading TrustBank's commitment to excellence
-            </p>
-          </div>
+       {/* Leadership Team Section */}
+<section className="mb-16">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mb-4 animate-fade-in-up">
+      Executive Leadership Team
+    </h2>
+    <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+      Meet the experienced financial professionals leading TrustBank's commitment to excellence
+    </p>
+  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {leadershipTeam.map((member, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-fade-in-up group border border-blue-100"
-                style={{ animationDelay: `${index * 150 + 400}ms` }}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {leadershipTeam.map((member, index) => (
+      <div 
+        key={index} 
+        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-fade-in-up group border border-blue-100"
+        style={{ animationDelay: `${index * 150 + 400}ms` }}
+      >
+        {/* Image Container - Updated for centering */}
+        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+          <img 
+            src={member.image} 
+            alt={member.name}
+            className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg transition-transform duration-500 group-hover:scale-110"
+            style={{ 
+              objectPosition: 'center',
+              minWidth: '128px',
+              minHeight: '128px'
+            }}
+          />
+          {/* Role Badge */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+            <span className="bg-white/90 backdrop-blur-sm text-blue-800 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+              {member.role.split(' ')[0]}
+            </span>
+          </div>
+          {/* Gradient Overlay */}
+          <div className={`absolute inset-0 bg-gradient-to-t from-blue-900/10 via-transparent to-transparent opacity-60`}></div>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 text-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">
+            {member.name}
+          </h3>
+          <p className={`font-semibold mb-3 bg-gradient-to-r ${member.color} bg-clip-text text-transparent text-sm`}>
+            {member.role}
+          </p>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+            {member.bio}
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {member.expertise.map((skill, skillIndex) => (
+              <span 
+                key={skillIndex} 
+                className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium group-hover:scale-105 transition-transform duration-300"
               >
-                {/* Image Container */}
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={member.image} 
-                    alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-t from-blue-900/30 to-transparent opacity-60`}></div>
-                  {/* Role Badge */}
-                  <div className="absolute bottom-3 left-3">
-                    <span className="bg-white/90 backdrop-blur-sm text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
-                      {member.role.split(' ')[0]}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Content */}
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">
-                    {member.name}
-                  </h3>
-                  <p className={`font-semibold mb-3 bg-gradient-to-r ${member.color} bg-clip-text text-transparent text-sm`}>
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 text-sm mb-4 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
-                    {member.bio}
-                  </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {member.expertise.map((skill, skillIndex) => (
-                      <span 
-                        key={skillIndex} 
-                        className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium group-hover:scale-105 transition-transform duration-300"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Animated border */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300 transition-all duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"></div>
-              </div>
+                {skill}
+              </span>
             ))}
           </div>
-        </section>
-
+        </div>
+        
+        {/* Animated border */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300 transition-all duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"></div>
+      </div>
+    ))}
+  </div>
+</section>
         {/* Commitment Section */}
         <section className="mb-16">
           <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 rounded-2xl p-8 text-white transform hover:-translate-y-1 transition-all duration-500 animate-fade-in-up border border-blue-600" style={{ animationDelay: '600ms' }}>

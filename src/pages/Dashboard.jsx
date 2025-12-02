@@ -366,7 +366,7 @@ const Dashboard = () => {
                         props.payload.type
                       ]}
                       contentStyle={{
-                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        backgroundColor: 'rgba(248, 246, 246, 0.9)',
                         border: '1px solid rgba(255,255,255,0.2)',
                         borderRadius: '8px',
                         fontSize: '12px'

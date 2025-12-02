@@ -6,6 +6,7 @@ import {
   HelpCircle, ArrowRight, Crown, Sparkles,
   BadgeCheck, Target, Award, Star
 } from 'lucide-react';
+import{Link} from "react-router-dom"; 
 
 const Latest = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
@@ -353,9 +354,9 @@ const Latest = () => {
                 </div>
 
                 {/* CTA */}
-                <button className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
+                <Link to="/404" className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
                   {plan.cta}
-                </button>
+                </Link>
               </div>
             ))}
           </div>

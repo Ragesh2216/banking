@@ -200,9 +200,9 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br mt-8 from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br mt-8 mb-6 from-gray-900 via-blue-900/90 to-gray-900 text-white">
       {/* Animated Background */}
-      <div className="fixed inset-0 z-0 overflow-hidden">
+      <div className=" ">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900/20"></div>
         {[...Array(20)].map((_, i) => (
           <div

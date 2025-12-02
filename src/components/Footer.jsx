@@ -32,10 +32,10 @@ const Footer = () => {
 
           <div className="flex justify-center md:justify-start space-x-4">
             {[
-              { icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, url: "#" },
-              { icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, url: "#" },
-              { icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, url: "#" },
-              { icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, url: "#" }
+              { icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, url: "/404" },
+              { icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, url: "/404" },
+              { icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, url: "/404" },
+              { icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, url: "/404" }
             ].map((social, index) => (
               <a
                 key={index}

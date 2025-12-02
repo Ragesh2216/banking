@@ -1,0 +1,422 @@
+.my-element {
+    /* px-24 (96px horizontal padding) */
+    padding-left: 6rem;
+    padding-right: 6rem;
+
+    /* py-4 (16px vertical padding) */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    /* border-b (bottom border) */
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+
+    /* border-zinc-100 (light gray border color) */
+    border-bottom-color: #0b0be6; /* Tailwind's default zinc-100 color */
+
+    /* items-center (center items in a flex container) */height: 80px; /* Adjust height as needed */
+    width: 100%;
+    
+    /* Linear Gradient: Blue from 0% to 50%, Orange from 50% to 100% */
+   background-image: var(--tw-gradient-stops);
+	--tw-gradient-from: #4f46e5;
+	--tw-gradient-to: #10b981;
+	--tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+	background: linear-gradient(to right, var(--tw-gradient-stops));
+    
+    color: white; /* Ensures text is visible on the dark background */
+    text-align: center;
+    line-height: 80px;
+    align-items: center; /* Requires 'display: flex;' or 'display: grid;' on the parent/element */
+
+}
+
+/* --- max-sm:px-5 (Responsive padding for small screens) --- */
+@media (max-width: 639px) { /* Tailwind's default 'sm' breakpoint is 640px */
+    .my-element {
+        /* px-5 (20px horizontal padding) */
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+		position: relative; /* Key: allows ::before to be positioned relative to the h2 */
+    display: inline-block; /* Makes the element only as wide as its content */
+    padding-left: 20px; /* Makes space for the accent bar */
+    font-family: serif;
+    color: #2c3e50;
+    font-size: 2rem;
+
+    }
+	.my-element::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 5px; /* Width of the accent bar */
+	background-color: #e67e22; /* Orange color for the accent bar */
+}
+}
+
+
+
+.my-section {
+
+	background-color: #1a80f5;
+    /* mt-20 (80px top margin) */
+    margin-top: 5rem; 
+
+    /* py-20 (80px vertical padding) */
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+
+    /* px-24 (96px horizontal padding) */
+    padding-left: 6rem;
+    padding-right: 6rem;
+
+    /* border-t (top border) */
+    border-top-width: 1px;
+    border-top-style: solid;
+    
+    /* border-zinc-100 (light gray border color) */
+    border-top-color: #f4f4f5; /* Tailwind's default zinc-100 color */
+}
+
+/* --- max-sm:px-4 (Responsive padding for small screens) --- */
+@media (max-width: 639px) { /* Tailwind's default 'sm' breakpoint is 640px */
+    .my-section {
+        /* px-4 (16px horizontal padding) */
+        padding-left: 1rem;
+        padding-right: 1rem;
+        height: 30px;
+    }
+}
+
+
+
+/* 1. Container and Table Sizing */
+.about-sections-container {
+    padding:0;
+    background-color: #7676f0; /* Very Light Gray background for the section */
+    border-radius: 8px; /* Slightly rounded corners */
+}
+
+.about-sections-table {
+    width:auto;
+     /* Essential for clean borders */
+    margin-top: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* 2. Header Styling (Primary Colour: Blue) */
+.about-sections-table thead th {
+    background-color: #3498db; /* Primary Blue background */
+    color: white; /* White text for contrast */
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #2980b9; /* Slightly darker blue border */
+}
+
+/* 3. Row Styling (Zebra Striping) */
+.about-sections-table tbody td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #ddd; /* Light gray line between rows */
+    vertical-align: top; /* Align content to the top of the cell */
+}
+
+/* Zebra Striping: Alternate row colours for readability */
+.about-sections-table tbody tr:nth-child(even) {
+    background-color: #9decf7; /* Lighter shade for even rows */
+}
+
+.about-sections-table tbody tr:nth-child(odd) {
+    background-color: #fa8282; /* White background for odd rows */
+}
+
+/* Hover Effect (Optional but good for UX) */
+.about-sections-table tbody tr:hover {
+    background-color: #3190e4; /* Very light blue on hover */
+    cursor: default;
+}
+
+.my-about {
+    /* mt-12 (48px top margin) */
+    
+    color: #13f1a7;
+	background-image: url(./images/bg.webp);
+
+    /* px-24 (96px horizontal padding) */
+    padding-left: 6rem;
+    padding-right: 6rem;
+}
+
+/* --- max-sm:px-4 (Responsive padding for small screens) --- */
+@media (max-width: 639px) { /* Tailwind's default 'sm' breakpoint is 640px */
+    .my-about {
+        /* px-4 (16px horizontal padding) */
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+
+.contact {
+
+border-radius: 5px;
+    /* w-1/2 (width: 50%) */
+    width: 50%;
+    color: rgb(87, 5, 87);
+    
+    /* flex flex-col (display: flex; flex-direction: column) */
+    display: flex;
+    flex-direction: column;
+    
+    /* mx-auto (margin-left: auto; margin-right: auto) */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- max-md:w-11/12 (Responsive Adjustment) --- */
+/* Applies when the screen width is less than the medium breakpoint (768px) */
+@media (max-width: 767px) { 
+    .contact {
+      margin-top: 0;
+        /* w-11/12 (width: 91.6667%) */
+        width: 86.6667%; 
+    }
+}
+@media (max-width: 480px) {
+    /* 1. Force the container to take full width and remove borders/shadow */
+    .about-sections-table {
+        border: none;
+      
+        box-shadow: none;
+    }
+
+    /* 2. Hide the original table header */
+    .about-sections-table thead {
+        display: none;
+    }
+
+    /* 3. Make table elements behave like blocks/divs */
+    .about-sections-table,
+    .about-sections-table tbody,
+    .about-sections-table tr,
+    .about-sections-table td {
+        display: block; /* Stacks the elements vertically */
+        width: 100%;
+    }
+    
+    /* 4. Style each row as a separate "card" */
+    .about-sections-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 5. Add a label before the cell content */
+    .about-sections-table td {
+
+      /* Remove the bottom border on cells since the row now has a border */
+        border-bottom: none; 
+        text-align: left; /* Aligns the data content to the right */
+        padding-left: 50%; /* Makes room for the label on the left */
+        position: relative;
+    }
+
+    /* 6. Use ::before to inject the column name from a data attribute */
+    .about-sections-table td::before {
+        /* NOTE: To make this work, you must add data-label="Column Name" 
+           to your HTML <td> elements. */
+        content: attr(data-label); 
+        float:right;
+        font-weight: bold;
+        text-align: center; /* Aligns the label to the left */
+        position: absolute;
+        left: 1rem;
+    }
+}
+
+.login {
+	background-image: url(./images/bg.webp);
+    /* min-h-screen (Sets minimum height to the full viewport height) */
+    min-height: 100vh; 
+    
+    /* bg-gray-900 (Dark background color) */
+    background-color: #6e0c80; /* Tailwind's default gray-900 */
+    
+    /* flex (Enables flexbox) */
+    display: flex;
+    
+    /* items-center (Center items vertically) */
+    align-items: center;
+    
+    /* justify-center (Center items horizontally) */
+    justify-content: center;
+    
+    /* p-4 (Padding around the entire container: 1rem / 16px) */
+    padding: 1rem;
+    
+    /* font-inter (Sets the font family) */
+    font-family: 'Inter', sans-serif; /* Requires the Inter font to be imported */
+}
+
+.hero-image
+{
+
+	width: 100%;
+	height: auto;
+	background-repeat: repeat-x;
+	object-fit: cover;
+	background-image: -webkit-linear-gradient(right, #74bbeb, #e6224d);
+}
+
+
+
+.tags-bg
+{
+	height: auto;
+	width: 100%;
+	background-image: var(--tw-gradient-stops);
+	--tw-gradient-from: #fc7fd2;
+	--tw-gradient-to: #13f1a7;
+	--tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+	background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+.authors-bg
+{
+	height: 100;
+	width: 100%;
+	background-image: var(--tw-gradient-stops);
+	--tw-gradient-from: #f7839c;
+	--tw-gradient-to: #10b981;
+	--tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+	background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+.archive-bg
+{
+	height: auto;
+	width: 100%;
+	background-image: var(--tw-gradient-stops);
+	--tw-gradient-from: #9a9fe4;
+	--tw-gradient-to: #13f1a7;
+	--tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+	background: linear-gradient(to right, var(--tw-gradient-stops));}
+
+	.services-page {
+  position: relative;
+  z-index: 0;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* Grid layout */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem; 
+
+}
+@media (min-width: 768px) {
+  .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .services-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Service Card */
+.service-card {
+  background-color: #ffffff;
+  padding: 1.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  border-top: 4px solid transparent;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  border-top-color: #6366f1;
+}
+
+/* Icon Styling */
+.icon-container {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 9999px;
+  background-color: #eef2ff;
+  border: 2px solid #e0e7ff;
+}
+.service-icon {
+  font-size: 2rem;
+  color: #4f46e5;
+}
+
+/* Button */
+.card-button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  background-color: #4f46e5;
+  color: white;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+.card-button:hover {
+  background-color: #4338ca;
+  transform: scale(1.03);
+}
+
+/* CTA Section */
+.cta-section {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  max-width: 48rem;
+  margin: 5rem auto 0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.primary-cta-button {
+  display: inline-block;
+  padding: 0.75rem 2.5rem;
+  background-color: #10b981;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+.primary-cta-button:hover {
+  background-color: #059669;
+  transform: scale(1.05);
+}
+
+/* Simple fade animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+     

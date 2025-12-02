@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.nav{
+  height: 60px;
+}
+.navLink {
+    position: relative;
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .navLink::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    width: 0;
+    height: 5px;
+    background-color: #c416e7ff; /* Adjust color as needed */
+    transition: width 0.3s;
+  }
+  
+  .navLink:hover::after {
+    width: 16px;
+  }
+  
+ .service {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: linear-gradient(to right, #fc7fd2, #13f1a7);
+  color: white;
+}
+
+.service-title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+.service-card {
+  background: white;
+  color: #333;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-button {
+  display: inline-block;
+  background: linear-gradient(to right, #13f1a7, #fc7fd2);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cta-section {
+  margin-top: 3rem;
+  background: white;
+  color: #222;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.primary-cta-button {
+  background: linear-gradient(to right, #0a35f5, #bde03c);
+  padding: 0.75rem 1.5rem;
+  color: rgb(47, 247, 20);
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 1rem;
+}
+ 
+
+ 

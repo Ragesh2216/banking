@@ -65,12 +65,11 @@ const Footer = () => {
           <h5 className="text-white text-lg font-semibold mb-6">Banking Services</h5>
           <ul className="space-y-3">
             {[
-              { label: "Personal Banking", url: "/personal" },
-              { label: "Business Banking", url: "/business" },
-              { label: "Loans & Mortgages", url: "/loans" },
-              { label: "Investment Services", url: "/investments" },
-              { label: "Credit Cards", url: "/credit-cards" },
-              { label: "Digital Banking", url: "/digital" }
+              { label: "Personal Banking", url: "/404" },
+              { label: "Business Banking", url: "/404" },
+              { label: "Loans & Mortgages", url: "/404" },
+              { label: "Investment Services", url: "/404" },
+            
             ].map((service, index) => (
               <li key={index}>
                 <a 
@@ -89,12 +88,11 @@ const Footer = () => {
           <h5 className="text-white text-lg font-semibold mb-6">Quick Links</h5>
           <ul className="space-y-3">
             {[
-              { label: "Branch Locator", url: "/branches" },
-              { label: "ATM Locations", url: "/atms" },
-              { label: "Rates & Fees", url: "/rates" },
-              { label: "Security Center", url: "/security" },
-              { label: "Online Banking", url: "/online-banking" },
-              { label: "Mobile App", url: "/mobile-app" }
+              { label: "home", url: "/" },
+              { label: "About", url: "/about" },
+              { label: "services", url: "/services" },
+              { label: "contact", url: "/contact" },
+          
             ].map((link, index) => (
               <li key={index}>
                 <a 
@@ -107,29 +105,28 @@ const Footer = () => {
             ))}
           </ul>
         </div>
-
-        {/* Contact Info */}
+  {/* Contact Info */}
         <div className="lg:col-span-1 text-center md:text-left">
-          <h5 className="text-white text-lg font-semibold mb-6">Contact Us</h5>
+          <h5 className="text-white text-lg font-semibold mb-6">Get In Touch</h5>
           <div className="space-y-4">
             <div className="flex flex-col items-center md:items-start md:flex-row md:space-x-3">
-              <LocationOnIcon className="w-5 h-5 text-blue-300 mt-0.5 flex-shrink-0 mb-2 md:mb-0" />
+              <LocationOnIcon className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0 mb-2 md:mb-0" />
               <div className="text-center md:text-left">
-                <p className="text-sm text-gray-300 font-medium">Corporate Headquarters</p>
-                <p className="text-sm text-gray-400">Financial District</p>
-                <p className="text-sm text-gray-400">New York, NY</p>
-                <p className="text-sm text-gray-400">USA - 10005</p>
+                <p className="text-sm text-gray-300 font-medium">Education Hub</p>
+                <p className="text-sm text-gray-400">MMR Complex</p>
+                <p className="text-sm text-gray-400">Salem, Tamil Nadu</p>
+                <p className="text-sm text-gray-400">India - 636008</p>
               </div>
             </div>
             
             <div className="flex justify-center md:justify-start">
               <a
-                href="https://www.google.com/maps"
+                href="https://www.google.com/maps/search/?api=1&query=MMR+COMPLEX,+Salem,+Tamil+Nadu+636008"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-300 hover:text-blue-200 underline text-sm"
+                className="text-purple-400 hover:text-purple-300 underline text-sm"
               >
-                Find Our Branches
+                View on Google Maps
               </a>
             </div>
             

@@ -282,9 +282,9 @@ const Latest = () => {
                   </div>
 
                   {/* CTA */}
-                  <button className={`w-full py-3 rounded-lg font-semibold transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
+                  <Link to="/404" className={`w-full py-3 rounded-lg font-semibold transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
                     {plan.cta}
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>

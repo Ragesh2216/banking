@@ -6,4 +6,7 @@ export default {
   },
   plugins: [],
 };
+({
+  base: "/ https://ragesh2210.github.io/banking/",
+});
 

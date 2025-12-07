@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -32,14 +33,16 @@ const Footer = () => {
 
           <div className="flex justify-center md:justify-start space-x-4">
             {[
-              { icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, url: "/404" },
-              { icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, url: "/404" },
-              { icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, url: "/404" },
-              { icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, url: "/404" }
+              { icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, url: "https://facebook.com" },
+              { icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, url: "https://twitter.com" },
+              { icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, url: "https://linkedin.com" },
+              { icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, url: "https://instagram.com" }
             ].map((social, index) => (
               <a
                 key={index}
                 href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 bg-blue-800/50 rounded-lg flex items-center justify-center hover:bg-blue-700/50 transition-colors duration-200 backdrop-blur-sm"
               >
                 {social.icon}
@@ -65,19 +68,18 @@ const Footer = () => {
           <h5 className="text-white text-lg font-semibold mb-6">Banking Services</h5>
           <ul className="space-y-3">
             {[
-              { label: "Personal Banking", url: "/404" },
-              { label: "Business Banking", url: "/404" },
-              { label: "Loans & Mortgages", url: "/404" },
-              { label: "Investment Services", url: "/404" },
-            
+              { label: "Personal Banking", url: "/services" },
+              { label: "Business Banking", url: "/services" },
+              { label: "Loans & Mortgages", url: "/services" },
+              { label: "Investment Services", url: "/services" },
             ].map((service, index) => (
               <li key={index}>
-                <a 
-                  href={service.url} 
+                <Link 
+                  to={service.url} 
                   className="text-gray-400 hover:text-blue-300 transition-colors duration-200 text-sm font-normal block py-1"
                 >
                   {service.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -88,24 +90,24 @@ const Footer = () => {
           <h5 className="text-white text-lg font-semibold mb-6">Quick Links</h5>
           <ul className="space-y-3">
             {[
-              { label: "home", url: "/" },
+              { label: "Home", url: "/" },
               { label: "About", url: "/about" },
-              { label: "services", url: "/services" },
-              { label: "contact", url: "/contact" },
-          
+              { label: "Services", url: "/services" },
+              { label: "Contact", url: "/contact" },
             ].map((link, index) => (
               <li key={index}>
-                <a 
-                  href={link.url} 
+                <Link 
+                  to={link.url} 
                   className="text-gray-400 hover:text-blue-300 transition-colors duration-200 text-sm font-normal block py-1"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
         </div>
-  {/* Contact Info */}
+  
+        {/* Contact Info */}
         <div className="lg:col-span-1 text-center md:text-left">
           <h5 className="text-white text-lg font-semibold mb-6">Get In Touch</h5>
           <div className="space-y-4">
@@ -123,7 +125,7 @@ const Footer = () => {
               <a
                 href="https://www.google.com/maps/search/?api=1&query=MMR+COMPLEX,+Salem,+Tamil+Nadu+636008"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="text-purple-400 hover:text-purple-300 underline text-sm"
               >
                 View on Google Maps
@@ -179,13 +181,13 @@ const Footer = () => {
               { label: "Careers", url: "/careers" },
               { label: "Report Fraud", url: "/fraud" }
             ].map((link, index) => (
-              <a
+              <Link
                 key={index}
-                href={link.url}
+                to={link.url}
                 className="text-gray-400 hover:text-blue-300 transition-colors duration-200"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -226,5 +228,5 @@ const Footer = () => {
     </footer>
   );
 };
-
+ 
 export default Footer;

@@ -203,9 +203,9 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br  mt-16 from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden">
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden -z-10">
+      <div className="fixed inset-0  overflow-hidden -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900/20"></div>
         {[...Array(15)].map((_, i) => (
           <div
@@ -227,7 +227,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <main className="relative z-10 pt-2 px-2 sm:px-4 md:px-6 py-3">
+      <main className="relative z-10 mt-8 pt-2 px-2 sm:px-4 md:px-6 py-3">
         {/* Mobile Quick Stats Bar - Only on small screens */}
         {isMobile && (
           <div className="mb-3">

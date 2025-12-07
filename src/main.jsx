@@ -1,11 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-
-import { HashRouter, Routes, Route } from "react-router-dom";
-
 import App from "./App.jsx";
-
+import "./index.css";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Homepage2 from "./pages/Homepage2.jsx";
 import LogisticsManagement from "./components/LogisticsManagement.jsx";
@@ -42,8 +39,7 @@ const Root = () => {
         <Route path="/contact" element={<App element={<Contact />} />} />
         <Route path="/login" element={<App element={<Login />} />} />
         <Route path="/explore-services" element={<App element={<ExploreServices />} />} />
-
-        <Route path="*" element={<App element={<NotFound />} />} />
+       <Route path="*" element={<App element={<NotFound />} />} />
       </Routes>
     </HashRouter>
   );
@@ -51,6 +47,9 @@ const Root = () => {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Root />
+    <HashRouter>
+      <App />
+      <Root/>
+    </HashRouter>
   </React.StrictMode>
 );

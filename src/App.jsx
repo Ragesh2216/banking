@@ -6,10 +6,11 @@ import './App.css';
 function App({ element }) {
   return (
     <>
-      <Scrooltop />
+    <Scrooltop/>
       <Navbar />
       {element}
       <Footer />
+     
     </>
   );
 }

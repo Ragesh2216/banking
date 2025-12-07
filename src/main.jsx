@@ -39,7 +39,7 @@ const Root = () => {
         <Route path="/contact" element={<App element={<Contact />} />} />
         <Route path="/login" element={<App element={<Login />} />} />
         <Route path="/explore-services" element={<App element={<ExploreServices />} />} />
-        <Route path="*" element={<App element={<NotFound />} />} />
+       <Route path="*" element={<App element={<NotFound />} />} />
       </Routes>
     </HashRouter>
   );

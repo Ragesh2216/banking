@@ -47,6 +47,8 @@ const Root = () => {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Root />
+    <HashRouter>
+      <App />
+    </HashRouter>
   </React.StrictMode>
 );

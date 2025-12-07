@@ -32,23 +32,35 @@ const Footer = () => {
           </p>
 
           <div className="flex justify-center md:justify-start space-x-4">
-            {[
-              { icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, url: "https://facebook.com" },
-              { icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, url: "https://twitter.com" },
-              { icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, url: "https://linkedin.com" },
-              { icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, url: "https://instagram.com" }
-            ].map((social, index) => (
-              <a
-                key={index}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-blue-800/50 rounded-lg flex items-center justify-center hover:bg-blue-700/50 transition-colors duration-200 backdrop-blur-sm"
-              >
-                {social.icon}
-              </a>
-            ))}
-          </div>
+  {[
+    { 
+      icon: <FacebookIcon className="hover:text-blue-300 transition-colors duration-200" />, 
+      label: "Facebook"
+    },
+    { 
+      icon: <TwitterIcon className="hover:text-blue-400 transition-colors duration-200" />, 
+      label: "Twitter"
+    },
+    { 
+      icon: <LinkedInIcon className="hover:text-blue-500 transition-colors duration-200" />, 
+      label: "LinkedIn"
+    },
+    { 
+      icon: <InstagramIcon className="hover:text-pink-400 transition-colors duration-200" />, 
+      label: "Instagram"
+    }
+  ].map((social, index) => (
+    <Link
+      key={index}
+      to="/404"
+      className="w-10 h-10 bg-blue-800/50 rounded-lg flex items-center justify-center hover:bg-blue-700/50 transition-colors duration-200 backdrop-blur-sm"
+      aria-label={social.label}
+      title={social.label}
+    >
+      {social.icon}
+    </Link>
+  ))}
+</div>
 
           {/* Security Badges */}
           <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-3">

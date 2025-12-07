@@ -87,23 +87,23 @@ const AnimatedCounter = ({ value, duration = 1500, prefix = '', suffix = '', cla
 // Mini Stats Component for mobile
 const MiniStat = ({ title, value, change, icon, color, delay = 0 }) => (
   <div 
-    className="min-w-0 bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-white/10 flex-1"
+    className="min-w-[120px] bg-black/30 backdrop-blur-sm rounded-lg p-2 border border-white/10"
     style={{ animationDelay: `${delay}ms` }}
   >
     <div className="flex items-center justify-between mb-1">
-      <span className="text-[10px] xs:text-xs text-gray-300 truncate">{title}</span>
-      <span className="text-base">{icon}</span>
+      <span className="text-[10px] text-gray-300 truncate pr-1">{title}</span>
+      <span className="text-sm flex-shrink-0">{icon}</span>
     </div>
-    <div className={`text-sm xs:text-base font-bold truncate ${color}`}>
+    <div className={`text-sm font-bold truncate ${color}`}>
       <AnimatedCounter value={value} duration={1200} />
     </div>
     <div className="flex items-center justify-between mt-1">
-      <span className={`text-[9px] xs:text-[10px] ${
+      <span className={`text-[9px] ${
         change.startsWith('+') ? 'text-green-400' : 'text-red-400'
       }`}>
         {change}
       </span>
-      <span className="text-[9px] xs:text-[10px] text-gray-400 truncate">MoM</span>
+      <span className="text-[9px] text-gray-400 truncate pl-1">MoM</span>
     </div>
   </div>
 );
@@ -111,18 +111,21 @@ const MiniStat = ({ title, value, change, icon, color, delay = 0 }) => (
 const Dashboard = () => {
   const [activeView, setActiveView] = useState('overview');
   const [isMobile, setIsMobile] = useState(false);
+  const [isVerySmall, setIsVerySmall] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Detect screen size
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsVerySmall(width < 375);
     };
     
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
     
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
   // Update time
@@ -169,11 +172,11 @@ const Dashboard = () => {
   ];
 
   const recentTransactions = [
-    { id: 1, customer: 'James Wilson', type: 'Large Deposit', amount: 250000, time: '2h ago', status: 'completed' },
-    { id: 2, customer: 'Sarah Chen', type: 'Loan Payment', amount: 15000, time: '5h ago', status: 'completed' },
-    { id: 3, customer: 'Mike Rodriguez', type: 'Wire Transfer', amount: 75000, time: '1d ago', status: 'pending' },
+    { id: 1, customer: 'James Wilson', type: 'Deposit', amount: 250000, time: '2h ago', status: 'completed' },
+    { id: 2, customer: 'Sarah Chen', type: 'Loan Pay', amount: 15000, time: '5h ago', status: 'completed' },
+    { id: 3, customer: 'Mike Rodriguez', type: 'Transfer', amount: 75000, time: '1d ago', status: 'pending' },
     { id: 4, customer: 'Emily Davis', type: 'Investment', amount: 120000, time: '2d ago', status: 'completed' },
-    { id: 5, customer: 'David Kim', type: 'Credit Card', amount: 4500, time: '3d ago', status: 'completed' }
+    { id: 5, customer: 'David Kim', type: 'Card', amount: 4500, time: '3d ago', status: 'completed' }
   ];
 
   const branchPerformance = [
@@ -193,24 +196,24 @@ const Dashboard = () => {
   ];
 
   const alertItems = [
-    { id: 1, type: 'warning', message: 'Large withdrawal detected', time: '10 min ago' },
-    { id: 2, type: 'info', message: 'System backup completed', time: '2h ago' },
+    { id: 1, type: 'warning', message: 'Large withdrawal', time: '10 min ago' },
+    { id: 2, type: 'info', message: 'Backup completed', time: '2h ago' },
     { id: 3, type: 'success', message: 'All branches connected', time: '4h ago' },
-    { id: 4, type: 'warning', message: '3 loan applications pending', time: '6h ago' }
+    { id: 4, type: 'warning', message: '3 loans pending', time: '6h ago' }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br mt-8 mb-6 from-gray-900 via-blue-900/90 to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden">
       {/* Animated Background */}
-      <div className=" ">
+      <div className="fixed inset-0 overflow-hidden -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900/20"></div>
-        {[...Array(20)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full animate-pulse-slow"
             style={{
-              width: `${Math.random() * 100 + 50}px`,
-              height: `${Math.random() * 100 + 50}px`,
+              width: `${Math.random() * 80 + 30}px`,
+              height: `${Math.random() * 80 + 30}px`,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               background: `radial-gradient(circle, ${
@@ -224,21 +227,20 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Top Navigation - Sticky */}
-     <header className="sticky top-0 z-40 bg-black/30 backdrop-blur-xl border-b border-white/10">
-  
- 
-</header>
-
-      <main className="relative z-10  mt-8 px-2 xs:px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+      <main className="relative z-10 pt-2 px-2 sm:px-4 md:px-6 py-3">
         {/* Mobile Quick Stats Bar - Only on small screens */}
         {isMobile && (
-          <div className="mb-4 overflow-x-auto pb-2">
-            <div className="flex space-x-2 min-w-max">
+          <div className="mb-3">
+            <div className="flex space-x-2 overflow-x-auto pb-2 -mx-2 px-2">
               {quickStats.slice(0, 4).map((stat, index) => (
                 <MiniStat key={index} {...stat} delay={index * 100} />
               ))}
             </div>
+            {isVerySmall && (
+              <div className="text-xs text-gray-400 text-center mt-1">
+                Scroll → to see more stats
+              </div>
+            )}
           </div>
         )}
 
@@ -255,7 +257,7 @@ const Dashboard = () => {
                   <span className="text-xs text-gray-400 truncate">{stat.title}</span>
                   <span className="text-xl">{stat.icon}</span>
                 </div>
-                <div className={`text-lg xs:text-xl font-bold mb-1 truncate ${stat.color}`}>
+                <div className={`text-lg sm:text-xl font-bold mb-1 truncate ${stat.color}`}>
                   <AnimatedCounter value={stat.value} duration={1500} />
                 </div>
                 <div className="flex items-center justify-between">
@@ -272,30 +274,32 @@ const Dashboard = () => {
         )}
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
           {/* Financial Performance Chart */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm sm:text-base font-semibold">Financial Performance</h2>
+              <h2 className="text-sm font-semibold">Financial Performance</h2>
               <select className="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs">
                 <option>Last 8 months</option>
                 <option>YTD</option>
                 <option>Last Year</option>
               </select>
             </div>
-            <div className="h-48 xs:h-56 sm:h-64 md:h-72">
+            <div className="h-48 sm:h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyPerformance}>
+                <AreaChart data={monthlyPerformance} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                   <XAxis 
                     dataKey="month" 
                     stroke="rgba(255,255,255,0.5)"
-                    fontSize={isMobile ? 10 : 12}
+                    fontSize={isVerySmall ? 9 : 10}
+                    tickMargin={5}
                   />
                   <YAxis 
                     stroke="rgba(255,255,255,0.5)"
-                    fontSize={isMobile ? 10 : 12}
+                    fontSize={isVerySmall ? 9 : 10}
                     tickFormatter={(value) => `$${(value / 1000000).toFixed(0)}M`}
+                    width={isVerySmall ? 30 : 40}
                   />
                   <Tooltip 
                     formatter={(value) => [`$${(value / 1000000).toFixed(2)}M`]}
@@ -303,7 +307,7 @@ const Dashboard = () => {
                       backgroundColor: 'rgba(0,0,0,0.9)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: '8px',
-                      fontSize: '12px'
+                      fontSize: '11px'
                     }}
                   />
                   <Area 
@@ -312,7 +316,7 @@ const Dashboard = () => {
                     stackId="1"
                     stroke="#3B82F6" 
                     fill="url(#colorDeposits)"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                   />
                   <Area 
                     type="monotone" 
@@ -320,7 +324,7 @@ const Dashboard = () => {
                     stackId="1"
                     stroke="#10B981" 
                     fill="url(#colorLoans)"
-                    strokeWidth={2}
+                    strokeWidth={1.5}
                   />
                   <defs>
                     <linearGradient id="colorDeposits" x1="0" y1="0" x2="0" y2="1">
@@ -338,23 +342,24 @@ const Dashboard = () => {
           </div>
 
           {/* Account Distribution */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
-            <h2 className="text-sm sm:text-base font-semibold mb-3">Account Distribution</h2>
-            <div className="flex flex-col xs:flex-row items-center">
-              <div className="w-full h-48 xs:h-56 sm:h-64">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <h2 className="text-sm font-semibold mb-3">Account Distribution</h2>
+            <div className="flex flex-col items-center">
+              <div className="w-full h-44 sm:h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={accountDistribution}
                       cx="50%"
                       cy="50%"
-                      innerRadius={isMobile ? 40 : 60}
-                      outerRadius={isMobile ? 80 : 90}
-                      paddingAngle={2}
+                      innerRadius={isVerySmall ? 30 : 40}
+                      outerRadius={isVerySmall ? 60 : 70}
+                      paddingAngle={1}
                       dataKey="value"
-                      label={({ type, percent }) => 
-                        isMobile ? '' : `${type}: ${(percent * 100).toFixed(0)}%`
+                      label={!isVerySmall ? ({ type, percent }) => 
+                        `${(percent * 100).toFixed(0)}%` : false
                       }
+                      labelLine={!isVerySmall}
                     >
                       {accountDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -366,26 +371,26 @@ const Dashboard = () => {
                         props.payload.type
                       ]}
                       contentStyle={{
-                        backgroundColor: 'rgba(248, 246, 246, 0.9)',
+                        backgroundColor: 'rgba(0,0,0,0.9)',
                         border: '1px solid rgba(255,255,255,0.2)',
                         borderRadius: '8px',
-                        fontSize: '12px'
+                        fontSize: '11px'
                       }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              {isMobile && (
-                <div className="w-full mt-4">
-                  <div className="grid grid-cols-2 gap-2">
+              {(isMobile || isVerySmall) && (
+                <div className="w-full mt-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {accountDistribution.map((item, index) => (
-                      <div key={index} className="flex items-center p-2 bg-white/5 rounded-lg">
+                      <div key={index} className="flex items-center p-1.5 bg-white/5 rounded">
                         <div 
-                          className="w-3 h-3 rounded-full mr-2"
+                          className="w-2 h-2 rounded-full mr-2 flex-shrink-0"
                           style={{ backgroundColor: item.color }}
                         />
-                        <span className="text-xs truncate">{item.type}</span>
-                        <span className="ml-auto text-xs font-bold">{item.value}%</span>
+                        <span className="text-[10px] truncate flex-1">{item.type}</span>
+                        <span className="text-[10px] font-bold ml-1">{item.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -396,48 +401,48 @@ const Dashboard = () => {
         </div>
 
         {/* Middle Section - Tables & Metrics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
           {/* Recent Transactions */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm sm:text-base font-semibold">Recent Transactions</h2>
+              <h2 className="text-sm font-semibold">Recent Transactions</h2>
               <button className="text-xs text-blue-400 hover:text-blue-300">View All</button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs sm:text-sm">
+            <div className="overflow-x-auto -mx-3 px-3">
+              <table className="w-full min-w-full text-xs">
                 <thead>
                   <tr className="text-left border-b border-white/10">
-                    <th className="pb-2 pr-2">Customer</th>
-                    <th className="pb-2 pr-2">Type</th>
-                    <th className="pb-2 pr-2">Amount</th>
-                    <th className="pb-2 pr-2">Status</th>
-                    <th className="pb-2">Time</th>
+                    <th className="pb-2 pr-2 text-[10px]">Customer</th>
+                    <th className="pb-2 pr-2 text-[10px]">Type</th>
+                    <th className="pb-2 pr-2 text-[10px]">Amount</th>
+                    <th className="pb-2 pr-2 text-[10px]">Status</th>
+                    <th className="pb-2 text-[10px]">Time</th>
                   </tr>
                 </thead>
                 <tbody>
                   {recentTransactions.map((txn) => (
                     <tr key={txn.id} className="border-b border-white/5 hover:bg-white/5">
                       <td className="py-2 pr-2">
-                        <div className="font-medium truncate max-w-[80px] xs:max-w-[120px]">
+                        <div className="font-medium truncate max-w-[70px] sm:max-w-[100px] text-[11px]">
                           {txn.customer}
                         </div>
                       </td>
                       <td className="py-2 pr-2">
-                        <span className="truncate max-w-[60px] xs:max-w-none">{txn.type}</span>
+                        <span className="truncate max-w-[50px] text-[11px]">{txn.type}</span>
                       </td>
-                      <td className="py-2 pr-2 font-semibold">
+                      <td className="py-2 pr-2 font-semibold text-[11px]">
                         ${(txn.amount).toLocaleString()}
                       </td>
                       <td className="py-2 pr-2">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] ${
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] ${
                           txn.status === 'completed' 
                             ? 'bg-green-500/20 text-green-300'
                             : 'bg-yellow-500/20 text-yellow-300'
                         }`}>
-                          {txn.status}
+                          {isVerySmall ? txn.status.charAt(0) : txn.status}
                         </span>
                       </td>
-                      <td className="py-2 text-gray-400 text-[10px] sm:text-xs">
+                      <td className="py-2 text-gray-400 text-[10px]">
                         {txn.time}
                       </td>
                     </tr>
@@ -448,29 +453,29 @@ const Dashboard = () => {
           </div>
 
           {/* Key Metrics */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
-            <h2 className="text-sm sm:text-base font-semibold mb-3">Key Banking Metrics</h2>
-            <div className="space-y-3">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <h2 className="text-sm font-semibold mb-3">Key Banking Metrics</h2>
+            <div className="space-y-2">
               {keyMetrics.map((metric, index) => (
-                <div key={index} className="p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs sm:text-sm font-medium">{metric.label}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                <div key={index} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium truncate pr-1">{metric.label}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                       metric.status === 'exceeded' 
                         ? 'bg-green-500/20 text-green-300'
                         : 'bg-blue-500/20 text-blue-300'
                     }`}>
-                      {metric.status}
+                      {isVerySmall ? '✓' : metric.status}
                     </span>
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <div className="text-lg sm:text-xl font-bold">{metric.value}</div>
-                      <div className="text-xs text-gray-400 mt-1">Current Value</div>
+                      <div className="text-base font-bold">{metric.value}</div>
+                      <div className="text-[10px] text-gray-400">Current</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-300">Target: {metric.target}</div>
-                      <div className="text-xs text-gray-400">Required</div>
+                      <div className="text-xs text-gray-300">Target: {metric.target}</div>
+                      <div className="text-[10px] text-gray-400">Required</div>
                     </div>
                   </div>
                 </div>
@@ -480,76 +485,80 @@ const Dashboard = () => {
         </div>
 
         {/* Bottom Section - Branch Performance & Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {/* Branch Performance */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
-            <h2 className="text-sm sm:text-base font-semibold mb-3">Branch Performance</h2>
-            <div className="h-56 sm:h-64">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <h2 className="text-sm font-semibold mb-3">Branch Performance</h2>
+            <div className="h-48 sm:h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={branchPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <BarChart data={branchPerformance} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="2 2" stroke="rgba(255,255,255,0.1)" />
                   <XAxis 
                     dataKey="branch" 
                     stroke="rgba(255,255,255,0.5)"
-                    fontSize={isMobile ? 10 : 12}
+                    fontSize={isVerySmall ? 9 : 10}
+                    angle={isVerySmall ? -45 : 0}
+                    textAnchor={isVerySmall ? 'end' : 'middle'}
                   />
                   <YAxis 
                     stroke="rgba(255,255,255,0.5)"
-                    fontSize={isMobile ? 10 : 12}
+                    fontSize={isVerySmall ? 9 : 10}
+                    width={isVerySmall ? 25 : 30}
                   />
                   <Tooltip 
                     contentStyle={{
                       backgroundColor: 'rgba(0,0,0,0.9)',
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: '8px',
-                      fontSize: '12px'
+                      fontSize: '11px'
                     }}
                   />
-                  <Bar dataKey="deposits" fill="#3B82F6" name="Deposits (%)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="loans" fill="#10B981" name="Loans (%)" radius={[4, 4, 0, 0]} />
-                  <Legend 
-                    wrapperStyle={{
-                      fontSize: '12px',
-                      paddingTop: '10px'
-                    }}
-                  />
+                  <Bar dataKey="deposits" fill="#3B82F6" name="Deposits %" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="loans" fill="#10B981" name="Loans %" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* System Alerts */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm sm:text-base font-semibold">System Alerts</h2>
+              <h2 className="text-sm font-semibold">System Alerts</h2>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-xs">All Systems Normal</span>
+                <span className="text-xs">All Normal</span>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {alertItems.map((alert) => (
                 <div
                   key={alert.id}
-                  className="p-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-start space-x-3"
+                  className="p-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-start space-x-2"
                 >
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
+                  <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${
                     alert.type === 'warning' ? 'bg-yellow-500' :
                     alert.type === 'success' ? 'bg-green-500' :
                     'bg-blue-500'
                   }`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{alert.message}</p>
-                    <p className="text-xs text-gray-400 mt-1">{alert.time}</p>
+                    <p className="text-xs truncate">{alert.message}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{alert.time}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </main>
 
-     
+        {/* Mobile-only footer info */}
+        {isMobile && (
+          <div className="mt-4 text-center">
+            <p className="text-xs text-gray-400">
+              Last updated: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
+        )}
+      </main>
 
       {/* Responsive CSS */}
       <style jsx global>{`
@@ -585,89 +594,80 @@ const Dashboard = () => {
           animation: pulse-slow 4s ease-in-out infinite;
         }
         
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
-        
-        /* Ultra-small screen optimizations */
+        /* Ultra-small screen optimizations (320px and below) */
         @media (max-width: 320px) {
           .text-\[10px\] {
-            font-size: 9px !important;
+            font-size: 8px !important;
           }
           .text-xs {
+            font-size: 9px !important;
+          }
+          .text-sm {
             font-size: 10px !important;
+          }
+          .p-2 {
+            padding: 0.375rem !important;
           }
           .p-3 {
             padding: 0.5rem !important;
           }
-          .space-x-2 > :not([hidden]) ~ :not([hidden]) {
-            --tw-space-x-reverse: 0;
-            margin-right: 0.25rem;
-            margin-left: 0.25rem;
+          .gap-3 > * {
+            margin-top: 0.375rem;
+          }
+          .space-x-2 > * + * {
+            margin-left: 0.25rem !important;
+          }
+          .min-w-\[120px\] {
+            min-width: 100px !important;
           }
         }
         
-        /* 320px to 480px */
-        @media (min-width: 320px) and (max-width: 480px) {
-          .xs\\:text-xs {
-            font-size: 0.75rem;
-          }
-          .xs\\:text-base {
-            font-size: 1rem;
-          }
-          .xs\\:px-3 {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-          }
-          .xs\\:max-w-\\[120px\\] {
-            max-width: 120px;
+        /* Small screens (321px to 375px) */
+        @media (min-width: 321px) and (max-width: 375px) {
+          .min-w-\[120px\] {
+            min-width: 110px !important;
           }
         }
         
-        /* Touch optimization */
-        @media (max-width: 768px) {
-          button,
-          [role="button"],
-          input,
-          select,
-          textarea {
-            min-height: 44px;
-            min-width: 44px;
-          }
+        /* Prevent horizontal overflow */
+        .overflow-x-hidden {
+          overflow-x: hidden;
         }
         
-        /* Prevent text overflow */
-        .truncate {
-          overflow: hidden;
-          text-overflow: ellipsis;
+        /* Custom scrollbar for horizontal scroll */
+        .overflow-x-auto::-webkit-scrollbar {
+          height: 4px;
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 2px;
+        }
+        
+        /* Ensure table cells don't break */
+        table {
+          border-collapse: separate;
+          border-spacing: 0;
+        }
+        
+        td, th {
           white-space: nowrap;
+        }
+        
+        /* Better touch targets */
+        @media (max-width: 768px) {
+          button, [role="button"], select {
+            min-height: 36px;
+          }
         }
         
         /* Smooth transitions */
         * {
-          transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-        }
-        
-        /* Focus styles for accessibility */
-        :focus-visible {
-          outline: 2px solid #3B82F6;
-          outline-offset: 2px;
+          transition: background-color 0.2s ease, border-color 0.2s ease;
         }
       `}</style>
     </div>

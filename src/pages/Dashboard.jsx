@@ -85,10 +85,15 @@ const AnimatedCounter = ({ value, duration = 1500, prefix = '', suffix = '', cla
 };
 
 // Mini Stats Component for mobile
-const MiniStat = ({ title, value, change, icon, color, delay = 0 }) => (
+const MiniStat = ({ title, value, change, icon, color, delay = 0, direction = 'left' }) => (
   <div 
-    className="min-w-[120px] bg-black/30 backdrop-blur-sm rounded-lg p-2 border border-white/10"
-    style={{ animationDelay: `${delay}ms` }}
+    className={`min-w-[120px] bg-black/30 backdrop-blur-sm rounded-lg p-2 border border-white/10 opacity-0 ${
+      direction === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right'
+    }`}
+    style={{ 
+      animationDelay: `${delay}ms`,
+      animationFillMode: 'forwards'
+    }}
   >
     <div className="flex items-center justify-between mb-1">
       <span className="text-[10px] text-gray-300 truncate pr-1">{title}</span>
@@ -113,6 +118,15 @@ const Dashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isVerySmall, setIsVerySmall] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [animatedSections, setAnimatedSections] = useState({});
+  
+  // Refs for scroll animations
+  const containerRef = useRef(null);
+  const statsRef = useRef(null);
+  const chartsRef = useRef(null);
+  const tablesRef = useRef(null);
+  const bottomRef = useRef(null);
 
   // Detect screen size
   useEffect(() => {
@@ -135,6 +149,59 @@ const Dashboard = () => {
     }, 60000);
     
     return () => clearInterval(timer);
+  }, []);
+
+  // Scroll progress tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const windowHeight = window.innerHeight;
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const containerHeight = containerRef.current.offsetHeight;
+        const progress = Math.max(0, Math.min(1, (windowHeight - containerTop) / (windowHeight + containerHeight)));
+        setScrollProgress(progress);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Setup IntersectionObserver for animations
+  useEffect(() => {
+    const observers = [];
+    const sections = {};
+    
+    const createObserver = (ref, sectionName) => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              sections[sectionName] = true;
+              setAnimatedSections({...sections});
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '50px' }
+      );
+      
+      if (ref.current) {
+        observer.observe(ref.current);
+      }
+      
+      observers.push(observer);
+      return observer;
+    };
+
+    createObserver(statsRef, 'stats');
+    createObserver(chartsRef, 'charts');
+    createObserver(tablesRef, 'tables');
+    createObserver(bottomRef, 'bottom');
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
   }, []);
 
   // Banking data
@@ -202,42 +269,84 @@ const Dashboard = () => {
     { id: 4, type: 'warning', message: '3 loans pending', time: '6h ago' }
   ];
 
+  // Check if section should be animated
+  const shouldAnimate = (sectionName) => animatedSections[sectionName];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br  mt-16 from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden">
-      {/* Animated Background */}
-      <div className="fixed inset-0  overflow-hidden -z-10">
+    <div 
+      className="min-h-screen bg-gradient-to-br mt-16 from-gray-900 via-blue-900/90 to-gray-900 text-white overflow-x-hidden"
+      ref={containerRef}
+    >
+      {/* Animated Background with scroll interaction */}
+      <div className="fixed inset-0 overflow-hidden -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-gray-900/20"></div>
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full animate-pulse-slow"
-            style={{
-              width: `${Math.random() * 80 + 30}px`,
-              height: `${Math.random() * 80 + 30}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: `radial-gradient(circle, ${
-                ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i % 4]
-              }20, transparent 70%)`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${Math.random() * 10 + 10}s`,
-              opacity: 0.1
-            }}
-          />
-        ))}
+        {[...Array(15)].map((_, i) => {
+          const depth = Math.random();
+          const speed = 0.3 + depth * 1.5;
+          const size = 30 + depth * 80;
+          const isLeft = i % 2 === 0;
+          
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse-slow"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: `radial-gradient(circle, ${
+                  ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i % 4]
+                }20, transparent 70%)`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${Math.random() * 10 + 10}s`,
+                opacity: 0.1,
+                transform: `translateY(${scrollProgress * speed * -30}px) translateX(${scrollProgress * (isLeft ? -20 : 20)}px) rotate(${scrollProgress * 90}deg)`,
+                transition: 'transform 0.1s linear'
+              }}
+            />
+          );
+        })}
+        
+        {/* Scroll progress indicator */}
+        <div className="fixed top-0 left-0 right-0 h-0.5 z-50">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500 transition-all duration-300"
+            style={{ width: `${scrollProgress * 100}%` }}
+          ></div>
+        </div>
+        
+        {/* Floating grid lines */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+            transform: `translateY(${scrollProgress * -20}px)`,
+            transition: 'transform 0.1s linear'
+          }}
+        ></div>
       </div>
 
       <main className="relative z-10 mt-8 pt-2 px-2 sm:px-4 md:px-6 py-3">
         {/* Mobile Quick Stats Bar - Only on small screens */}
         {isMobile && (
-          <div className="mb-3">
+          <div className="mb-3" ref={statsRef}>
             <div className="flex space-x-2 overflow-x-auto pb-2 -mx-2 px-2">
               {quickStats.slice(0, 4).map((stat, index) => (
-                <MiniStat key={index} {...stat} delay={index * 100} />
+                <MiniStat 
+                  key={index} 
+                  {...stat} 
+                  delay={index * 100} 
+                  direction={index % 2 === 0 ? 'left' : 'right'}
+                />
               ))}
             </div>
             {isVerySmall && (
-              <div className="text-xs text-gray-400 text-center mt-1">
+              <div className="text-xs text-gray-400 text-center mt-1 opacity-0 animate-fade-in-up delay-600">
                 Scroll → to see more stats
               </div>
             )}
@@ -246,16 +355,28 @@ const Dashboard = () => {
 
         {/* Desktop Quick Stats Grid */}
         {!isMobile && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+          <div 
+            className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 transition-all duration-500 ${
+              shouldAnimate('stats') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            ref={statsRef}
+          >
             {quickStats.map((stat, index) => (
               <div
                 key={index}
-                className="bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300 animate-fade-in-up"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className={`bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105 ${
+                  index % 2 === 0 ? 'animate-slide-in-left' : 'animate-slide-in-right'
+                }`}
+                style={{ 
+                  animationDelay: `${index * 100}ms`,
+                  animationFillMode: 'forwards'
+                }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-gray-400 truncate">{stat.title}</span>
-                  <span className="text-xl">{stat.icon}</span>
+                  <span className="text-xl transform hover:scale-125 transition-transform duration-300">
+                    {stat.icon}
+                  </span>
                 </div>
                 <div className={`text-lg sm:text-xl font-bold mb-1 truncate ${stat.color}`}>
                   <AnimatedCounter value={stat.value} duration={1500} />
@@ -274,12 +395,19 @@ const Dashboard = () => {
         )}
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-          {/* Financial Performance Chart */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <div 
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4 transition-all duration-500 ${
+            shouldAnimate('charts') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+          ref={chartsRef}
+        >
+          {/* Financial Performance Chart - Slides from left */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('charts') ? 'animate-slide-in-left' : ''
+          }`} style={{ animationDelay: '100ms' }}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold">Financial Performance</h2>
-              <select className="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs">
+              <select className="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs hover:bg-black/70 transition-colors duration-300">
                 <option>Last 8 months</option>
                 <option>YTD</option>
                 <option>Last Year</option>
@@ -341,8 +469,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Account Distribution */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+          {/* Account Distribution - Slides from right */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('charts') ? 'animate-slide-in-right' : ''
+          }`} style={{ animationDelay: '200ms' }}>
             <h2 className="text-sm font-semibold mb-3">Account Distribution</h2>
             <div className="flex flex-col items-center">
               <div className="w-full h-44 sm:h-52">
@@ -381,10 +511,14 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
               {(isMobile || isVerySmall) && (
-                <div className="w-full mt-3">
+                <div className="w-full mt-3 opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {accountDistribution.map((item, index) => (
-                      <div key={index} className="flex items-center p-1.5 bg-white/5 rounded">
+                      <div 
+                        key={index} 
+                        className="flex items-center p-1.5 bg-white/5 rounded transform hover:scale-105 transition-transform duration-300"
+                        style={{ animationDelay: `${500 + index * 100}ms` }}
+                      >
                         <div 
                           className="w-2 h-2 rounded-full mr-2 flex-shrink-0"
                           style={{ backgroundColor: item.color }}
@@ -401,27 +535,40 @@ const Dashboard = () => {
         </div>
 
         {/* Middle Section - Tables & Metrics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-          {/* Recent Transactions */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <div 
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4 transition-all duration-500 ${
+            shouldAnimate('tables') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+          ref={tablesRef}
+        >
+          {/* Recent Transactions - Slides from left */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('tables') ? 'animate-slide-in-left' : ''
+          }`} style={{ animationDelay: '100ms' }}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold">Recent Transactions</h2>
-              <button className="text-xs text-blue-400 hover:text-blue-300">View All</button>
+              <button className="text-xs text-blue-400 hover:text-blue-300 transform hover:scale-110 transition-transform duration-300">
+                View All
+              </button>
             </div>
             <div className="overflow-x-auto -mx-3 px-3">
               <table className="w-full min-w-full text-xs">
                 <thead>
                   <tr className="text-left border-b border-white/10">
-                    <th className="pb-2 pr-2 text-[10px]">Customer</th>
-                    <th className="pb-2 pr-2 text-[10px]">Type</th>
-                    <th className="pb-2 pr-2 text-[10px]">Amount</th>
-                    <th className="pb-2 pr-2 text-[10px]">Status</th>
-                    <th className="pb-2 text-[10px]">Time</th>
+                    <th className="pb-2 pr-2 text-[10px] opacity-0 animate-fade-in-up" style={{ animationDelay: '200ms' }}>Customer</th>
+                    <th className="pb-2 pr-2 text-[10px] opacity-0 animate-fade-in-up" style={{ animationDelay: '250ms' }}>Type</th>
+                    <th className="pb-2 pr-2 text-[10px] opacity-0 animate-fade-in-up" style={{ animationDelay: '300ms' }}>Amount</th>
+                    <th className="pb-2 pr-2 text-[10px] opacity-0 animate-fade-in-up" style={{ animationDelay: '350ms' }}>Status</th>
+                    <th className="pb-2 text-[10px] opacity-0 animate-fade-in-up" style={{ animationDelay: '400ms' }}>Time</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {recentTransactions.map((txn) => (
-                    <tr key={txn.id} className="border-b border-white/5 hover:bg-white/5">
+                  {recentTransactions.map((txn, index) => (
+                    <tr 
+                      key={txn.id} 
+                      className="border-b border-white/5 hover:bg-white/5 transform hover:scale-[1.02] transition-all duration-300 opacity-0 animate-fade-in-up"
+                      style={{ animationDelay: `${500 + index * 100}ms` }}
+                    >
                       <td className="py-2 pr-2">
                         <div className="font-medium truncate max-w-[70px] sm:max-w-[100px] text-[11px]">
                           {txn.customer}
@@ -434,7 +581,7 @@ const Dashboard = () => {
                         ${(txn.amount).toLocaleString()}
                       </td>
                       <td className="py-2 pr-2">
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] ${
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] transform hover:scale-110 transition-transform duration-300 ${
                           txn.status === 'completed' 
                             ? 'bg-green-500/20 text-green-300'
                             : 'bg-yellow-500/20 text-yellow-300'
@@ -452,15 +599,21 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Key Metrics */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+          {/* Key Metrics - Slides from right */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('tables') ? 'animate-slide-in-right' : ''
+          }`} style={{ animationDelay: '200ms' }}>
             <h2 className="text-sm font-semibold mb-3">Key Banking Metrics</h2>
             <div className="space-y-2">
               {keyMetrics.map((metric, index) => (
-                <div key={index} className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                <div 
+                  key={index} 
+                  className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02] opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: `${300 + index * 100}ms` }}
+                >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-medium truncate pr-1">{metric.label}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full transform hover:scale-110 transition-transform duration-300 ${
                       metric.status === 'exceeded' 
                         ? 'bg-green-500/20 text-green-300'
                         : 'bg-blue-500/20 text-blue-300'
@@ -485,9 +638,16 @@ const Dashboard = () => {
         </div>
 
         {/* Bottom Section - Branch Performance & Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {/* Branch Performance */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <div 
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-3 transition-all duration-500 ${
+            shouldAnimate('bottom') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+          ref={bottomRef}
+        >
+          {/* Branch Performance - Slides from left */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('bottom') ? 'animate-slide-in-left' : ''
+          }`} style={{ animationDelay: '100ms' }}>
             <h2 className="text-sm font-semibold mb-3">Branch Performance</h2>
             <div className="h-48 sm:h-56">
               <ResponsiveContainer width="100%" height="100%">
@@ -520,8 +680,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* System Alerts */}
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+          {/* System Alerts - Slides from right */}
+          <div className={`bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10 transform hover:-translate-y-1 transition-all duration-300 opacity-0 ${
+            shouldAnimate('bottom') ? 'animate-slide-in-right' : ''
+          }`} style={{ animationDelay: '200ms' }}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold">System Alerts</h2>
               <div className="flex items-center space-x-2">
@@ -530,12 +692,13 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="space-y-1.5">
-              {alertItems.map((alert) => (
+              {alertItems.map((alert, index) => (
                 <div
                   key={alert.id}
-                  className="p-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-colors flex items-start space-x-2"
+                  className="p-2 rounded border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02] flex items-start space-x-2 opacity-0 animate-fade-in-up"
+                  style={{ animationDelay: `${300 + index * 100}ms` }}
                 >
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 ${
+                  <div className={`w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0 transform hover:scale-125 transition-transform duration-300 ${
                     alert.type === 'warning' ? 'bg-yellow-500' :
                     alert.type === 'success' ? 'bg-green-500' :
                     'bg-blue-500'
@@ -553,24 +716,80 @@ const Dashboard = () => {
         {/* Mobile-only footer info */}
         {isMobile && (
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 opacity-0 animate-fade-in-up" style={{ animationDelay: '800ms' }}>
               Last updated: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         )}
       </main>
 
-      {/* Responsive CSS */}
+      {/* Enhanced CSS Animations */}
       <style jsx global>{`
         /* Base animations */
         @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInLeft {
+          0% {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.95);
+          }
+          50% {
+            transform: translateX(10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInRight {
+          0% {
+            opacity: 0;
+            transform: translateX(50px) scale(0.95);
+          }
+          50% {
+            transform: translateX(-10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInTop {
+          0% {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+          }
+          60% {
+            transform: translateY(10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInBottom {
+          0% {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          60% {
+            transform: translateY(-10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
           }
         }
         
@@ -585,14 +804,63 @@ const Dashboard = () => {
           }
         }
         
+        /* Animation classes */
         .animate-fade-in-up {
-          animation: fadeInUp 0.6s ease-out forwards;
-          opacity: 0;
+          animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-left {
+          animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-right {
+          animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-top {
+          animation: slideInTop 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-bottom {
+          animation: slideInBottom 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         
         .animate-pulse-slow {
           animation: pulse-slow 4s ease-in-out infinite;
         }
+        
+        /* Delays */
+        .delay-100 {
+          animation-delay: 100ms !important;
+        }
+        
+        .delay-200 {
+          animation-delay: 200ms !important;
+        }
+        
+        .delay-300 {
+          animation-delay: 300ms !important;
+        }
+        
+        .delay-400 {
+          animation-delay: 400ms !important;
+        }
+        
+        .delay-500 {
+          animation-delay: 500ms !important;
+        }
+        
+        .delay-600 {
+          animation-delay: 600ms !important;
+        }
+        
+        /* Stagger animations */
+        .stagger-children > *:nth-child(1) { animation-delay: 100ms; }
+        .stagger-children > *:nth-child(2) { animation-delay: 200ms; }
+        .stagger-children > *:nth-child(3) { animation-delay: 300ms; }
+        .stagger-children > *:nth-child(4) { animation-delay: 400ms; }
+        .stagger-children > *:nth-child(5) { animation-delay: 500ms; }
+        .stagger-children > *:nth-child(6) { animation-delay: 600ms; }
         
         /* Ultra-small screen optimizations (320px and below) */
         @media (max-width: 320px) {
@@ -667,7 +935,20 @@ const Dashboard = () => {
         
         /* Smooth transitions */
         * {
-          transition: background-color 0.2s ease, border-color 0.2s ease;
+          transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Gradient text effect */
+        .gradient-text {
+          background: linear-gradient(45deg, #60A5FA, #8B5CF6, #10B981);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+        
+        /* Hover glow effect */
+        .hover-glow:hover {
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
       `}</style>
     </div>

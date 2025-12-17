@@ -1,157 +1,97 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 export default function BankingService() {
   const [activeService, setActiveService] = useState(0);
   const [isHovered, setIsHovered] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  // Refs for scroll animations
+  const containerRef = useRef(null);
+  const statsRef = useRef(null);
+  const servicesRef = useRef(null);
+  const processRef = useRef(null);
+  const testimonialsRef = useRef(null);
+  const technologyRef = useRef(null);
+  const ctaRef = useRef(null);
 
   useEffect(() => {
     setIsVisible(true);
+    
+    // Scroll progress tracking
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const windowHeight = window.innerHeight;
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const containerHeight = containerRef.current.offsetHeight;
+        const scrollProgress = Math.max(0, Math.min(1, (windowHeight - containerTop) / (windowHeight + containerHeight)));
+        setScrollProgress(scrollProgress);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Add scroll animations for each section
+  useEffect(() => {
+    const observers = [];
+    
+    const createObserver = (ref, options = {}) => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      }, {
+        threshold: 0.1,
+        ...options
+      });
+      
+      if (ref.current) {
+        observer.observe(ref.current);
+      }
+      
+      observers.push(observer);
+      return observer;
+    };
+
+    // Create different observers for different animation effects
+    createObserver(statsRef, { threshold: 0.2 });
+    createObserver(servicesRef, { threshold: 0.1 });
+    createObserver(processRef, { threshold: 0.3 });
+    createObserver(testimonialsRef, { threshold: 0.2 });
+    createObserver(technologyRef, { threshold: 0.1 });
+    createObserver(ctaRef, { threshold: 0.5 });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
   }, []);
 
   const services = [
-    {
-      title: "Personal Banking",
-      icon: "👤",
-      description: "Comprehensive personal banking solutions including checking, savings, and money market accounts with competitive rates and FDIC insurance.",
-      detailsLink: "/personal-banking",
-      buttonText: "Open Account",
-      features: [
-        "FDIC insured up to $250,000",
-        "No hidden fees",
-        "24/7 mobile banking access",
-        "Free debit card & checks",
-        "Overdraft protection"
-      ],
-      stats: "95% customer satisfaction",
-      color: "from-blue-500 to-blue-700",
-      hoverColor: "from-blue-600 to-blue-800",
-      iconColor: "text-blue-400"
-    },
-    {
-      title: "Business Banking",
-      icon: "🏢",
-      description: "Tailored banking solutions for businesses of all sizes with merchant services, payroll solutions, and business credit lines.",
-      detailsLink: "/business-banking",
-      buttonText: "Business Solutions",
-      features: [
-        "Merchant payment processing",
-        "Payroll & HR solutions",
-        "Business credit lines",
-        "Cash management tools",
-        "Dedicated relationship manager"
-      ],
-      stats: "45% growth support",
-      color: "from-green-500 to-emerald-600",
-      hoverColor: "from-green-600 to-emerald-700",
-      iconColor: "text-green-400"
-    },
-    {
-      title: "Loans & Mortgages",
-      icon: "🏠",
-      description: "Competitive loan products including mortgages, auto loans, personal loans, and home equity lines with flexible terms.",
-      detailsLink: "/loans",
-      buttonText: "Apply Now",
-      features: [
-        "Competitive interest rates",
-        "Fast approval process",
-        "Flexible repayment terms",
-        "Online application tracking",
-        "Loan pre-approval"
-      ],
-      stats: "24-hour approval",
-      color: "from-purple-500 to-indigo-600",
-      hoverColor: "from-purple-600 to-indigo-700",
-      iconColor: "text-purple-400"
-    },
-    {
-      title: "Investment Services",
-      icon: "📈",
-      description: "Professional investment management, retirement planning, and wealth advisory services to grow and protect your assets.",
-      detailsLink: "/investments",
-      buttonText: "Invest Now",
-      features: [
-        "Personalized portfolio management",
-        "Retirement planning (401k, IRA)",
-        "Tax-efficient strategies",
-        "Real-time market insights",
-        "Certified financial advisors"
-      ],
-      stats: "12% average annual return",
-      color: "from-amber-500 to-yellow-600",
-      hoverColor: "from-amber-600 to-yellow-700",
-      iconColor: "text-amber-400"
-    },
-    {
-      title: "Credit Cards",
-      icon: "💳",
-      description: "Premium credit cards with rewards, cashback, travel benefits, and competitive APRs for various credit profiles.",
-      detailsLink: "/credit-cards",
-      buttonText: "Compare Cards",
-      features: [
-        "Zero fraud liability",
-        "Travel rewards & miles",
-        "Cashback on purchases",
-        "Contactless payments",
-        "Credit score monitoring"
-      ],
-      stats: "$0 fraud liability",
-      color: "from-red-500 to-orange-600",
-      hoverColor: "from-red-600 to-orange-700",
-      iconColor: "text-red-400"
-    },
-    {
-      title: "Digital Banking",
-      icon: "📱",
-      description: "Advanced digital banking platform with mobile app, online banking, bill pay, and secure digital wallet solutions.",
-      detailsLink: "/digital",
-      buttonText: "Go Digital",
-      features: [
-        "Mobile check deposit",
-        "Bill pay & transfers",
-        "Digital wallet integration",
-        "Budgeting tools",
-        "Account aggregation"
-      ],
-      stats: "5-star app rating",
-      color: "from-indigo-500 to-violet-600",
-      hoverColor: "from-indigo-600 to-violet-700",
-      iconColor: "text-indigo-400"
-    }
+    // ... (keep your services array exactly as is)
   ];
 
   const testimonials = [
-    {
-      quote: "TrustBank helped me buy my first home with their competitive mortgage rates. The process was smooth and transparent.",
-      author: "Sarah Chen",
-      company: "First-time Home Buyer",
-      rating: 5
-    },
-    {
-      quote: "Our business grew 45% with their customized banking solutions and merchant services. The dedicated support made all the difference.",
-      author: "Michael Rodriguez",
-      company: "Small Business Owner",
-      rating: 5
-    },
-    {
-      quote: "The investment advisors helped me build a retirement portfolio that's grown 12% annually. Professional and trustworthy service.",
-      author: "Dr. Emily Watson",
-      company: "Retirement Investor",
-      rating: 5
-    },
-    {
-      quote: "Switching to digital banking saved me hours each month. The mobile app is intuitive and the customer support is excellent.",
-      author: "James Kim",
-      company: "Tech Professional",
-      rating: 5
-    }
+    // ... (keep your testimonials array exactly as is)
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 relative overflow-hidden">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 relative overflow-hidden" ref={containerRef}>
+      {/* Animated Background Elements with scroll-based animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Scroll-progress animated gradient */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-blue-600/5 to-blue-700/10 transition-all duration-1000"
+          style={{
+            opacity: scrollProgress * 0.3,
+            transform: `scale(${1 + scrollProgress * 0.1})`
+          }}
+        ></div>
+        
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -164,43 +104,110 @@ export default function BankingService() {
               backgroundColor: ['#2563EB', '#1D4ED8', '#3B82F6', '#0EA5E9', '#1E40AF'][i % 5],
               animationDelay: `${Math.random() * 5}s`,
               animationDuration: `${Math.random() * 20 + 10}s`,
-              borderRadius: Math.random() > 0.5 ? '50%' : '25%'
+              borderRadius: Math.random() > 0.5 ? '50%' : '25%',
+              transform: `translateX(${scrollProgress * 100}px) rotate(${scrollProgress * 360}deg)`
             }}
           />
         ))}
         
-        {/* Animated Gradient Blobs */}
-        <div className="absolute top-1/4 -left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"></div>
-        <div className="absolute top-1/2 -right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-1/4 left-1/2 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow" style={{animationDelay: '4s'}}></div>
+        {/* Animated Gradient Blobs with scroll interaction */}
+        <div 
+          className="absolute top-1/4 -left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
+          style={{
+            transform: `translate(${scrollProgress * -50}px, ${scrollProgress * 30}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute top-1/2 -right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
+          style={{
+            animationDelay: '2s',
+            transform: `translate(${scrollProgress * 50}px, ${scrollProgress * -30}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-1/4 left-1/2 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
+          style={{
+            animationDelay: '4s',
+            transform: `translate(${scrollProgress * -30}px, ${scrollProgress * 50}px)`
+          }}
+        ></div>
       </div>
 
       <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
+        {/* Header Section with enhanced animation */}
         <section className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 bg-clip-text text-transparent animate-gradient">
-            Secure Banking Solutions for Every Need
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Trusted financial services backed by 150 years of banking excellence. 
-            From personal accounts to business solutions, we provide secure banking that grows with you.
-          </p>
+          <div className="relative inline-block">
+            {/* Decorative elements that animate on scroll */}
+            <div 
+              className="absolute -top-6 -left-6 w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full opacity-20 animate-pulse"
+              style={{
+                transform: `translate(${scrollProgress * -20}px, ${scrollProgress * -20}px)`
+              }}
+            ></div>
+            <div 
+              className="absolute -bottom-6 -right-6 w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full opacity-20 animate-pulse"
+              style={{
+                transform: `translate(${scrollProgress * 20}px, ${scrollProgress * 20}px)`,
+                animationDelay: '1s'
+              }}
+            ></div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 bg-clip-text text-transparent animate-gradient relative">
+              Secure Banking Solutions for Every Need
+              {/* Animated underline */}
+              <div 
+                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/3 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full opacity-0 animate-in"
+                style={{ animationDelay: '0.5s' }}
+              ></div>
+            </h1>
+          </div>
+          
+          <div className="relative">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed relative z-10">
+              Trusted financial services backed by 150 years of banking excellence. 
+              From personal accounts to business solutions, we provide secure banking that grows with you.
+            </p>
+            
+            {/* Floating particles in text background */}
+            <div className="absolute inset-0 overflow-hidden opacity-5">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-blue-500 rounded-full animate-float"
+                  style={{
+                    left: `${10 + i * 20}%`,
+                    top: '50%',
+                    animationDelay: `${i * 0.5}s`,
+                    animationDuration: '3s'
+                  }}
+                ></div>
+              ))}
+            </div>
+          </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="mb-16">
+        {/* Stats Section with staggered left-to-right animation */}
+        <section className="mb-16" ref={statsRef}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { number: "5M+", label: "Customers Served", color: "from-blue-500 to-blue-700", icon: "👥" },
-              { number: "150+", label: "Years of Trust", color: "from-green-500 to-emerald-600", icon: "🏛️" },
-              { number: "$500B+", label: "Assets Managed", color: "from-purple-500 to-indigo-600", icon: "💰" },
-              { number: "24/7", label: "Banking Access", color: "from-amber-500 to-yellow-600", icon: "🕒" }
+              { number: "5M+", label: "Customers Served", color: "from-blue-500 to-blue-700", icon: "👥", delay: 0 },
+              { number: "150+", label: "Years of Trust", color: "from-green-500 to-emerald-600", icon: "🏛️", delay: 100 },
+              { number: "$500B+", label: "Assets Managed", color: "from-purple-500 to-indigo-600", icon: "💰", delay: 200 },
+              { number: "24/7", label: "Banking Access", color: "from-amber-500 to-yellow-600", icon: "🕒", delay: 300 }
             ].map((stat, index) => (
               <div 
                 key={index}
-                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 group overflow-hidden relative border border-blue-100"
+                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-all duration-500 transform hover:scale-105 group overflow-hidden relative border border-blue-100 opacity-0 translate-x-[-50px] animate-in"
+                style={{ animationDelay: `${stat.delay}ms` }}
               >
                 <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
+                
+                {/* Entry animation line */}
+                <div 
+                  className="absolute top-0 left-0 h-full w-1 bg-gradient-to-b from-blue-500 to-blue-600 opacity-0 animate-in"
+                  style={{ animationDelay: `${stat.delay + 200}ms` }}
+                ></div>
+                
                 <div className="relative">
                   <div className="text-2xl mb-2 transform group-hover:scale-110 transition-transform duration-300">
                     {stat.icon}
@@ -217,85 +224,115 @@ export default function BankingService() {
           </div>
         </section>
 
-        {/* Services Grid */}
-        <section className="mb-16">
+        {/* Services Grid with diagonal entry animation */}
+        <section className="mb-16" ref={servicesRef}>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <div 
-                key={index}
-                className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border-l-4 ${
-                  isHovered === index ? 'border-blue-500' : 'border-transparent'
-                } group relative flex flex-col h-full border border-blue-100`}
-                onMouseEnter={() => setIsHovered(index)}
-                onMouseLeave={() => setIsHovered(null)}
-              >
-                {/* Animated gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>
-                
-                {/* Header Section - Fixed height */}
-                <div className={`p-8 bg-gradient-to-br ${service.color} text-white relative overflow-hidden group-hover:bg-gradient-to-br ${service.hoverColor} transition-all duration-500 min-h-[180px] flex flex-col justify-center`}>
-                  {/* Subtle shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            {services.map((service, index) => {
+              const row = Math.floor(index / 3);
+              const col = index % 3;
+              const delay = (row * 100) + (col * 150);
+              
+              return (
+                <div 
+                  key={index}
+                  className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border-l-4 ${
+                    isHovered === index ? 'border-blue-500' : 'border-transparent'
+                  } group relative flex flex-col h-full border border-blue-100 opacity-0 translate-x-[-30px] translate-y-[30px] rotate-[-5deg] animate-in`}
+                  style={{ animationDelay: `${delay}ms` }}
+                  onMouseEnter={() => setIsHovered(index)}
+                  onMouseLeave={() => setIsHovered(null)}
+                >
+                  {/* Animated gradient overlay with scroll effect */}
+                  <div 
+                    className={`absolute inset-0 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
+                    style={{
+                      transform: `translateX(${isHovered === index ? '0%' : '-100%'})`,
+                      transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease'
+                    }}
+                  ></div>
                   
-                  <div className="flex items-center gap-4 mb-4 relative">
-                    <div className={`text-4xl transform group-hover:scale-110 transition-transform duration-300 ${service.iconColor}`}>
-                      {service.icon}
+                  {/* Header Section */}
+                  <div className={`p-8 bg-gradient-to-br ${service.color} text-white relative overflow-hidden group-hover:bg-gradient-to-br ${service.hoverColor} transition-all duration-500 min-h-[180px] flex flex-col justify-center`}>
+                    {/* Entry animation overlay */}
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"
+                      style={{ animationDelay: `${delay + 300}ms` }}
+                    ></div>
+                    
+                    <div className="flex items-center gap-4 mb-4 relative">
+                      <div 
+                        className={`text-4xl transform group-hover:scale-110 transition-transform duration-300 ${service.iconColor} opacity-0 animate-in`}
+                        style={{ animationDelay: `${delay + 400}ms` }}
+                      >
+                        {service.icon}
+                      </div>
+                      <h2 className="text-2xl font-bold leading-tight drop-shadow-sm opacity-0 animate-in" style={{ animationDelay: `${delay + 500}ms` }}>
+                        {service.title}
+                      </h2>
                     </div>
-                    <h2 className="text-2xl font-bold leading-tight drop-shadow-sm">{service.title}</h2>
-                  </div>
-                  <p className="text-blue-100/90 text-lg leading-relaxed group-hover:text-white transition-colors duration-300 line-clamp-3">
-                    {service.description}
-                  </p>
-                </div>
-                
-                {/* Content Section - Flexible but consistent */}
-                <div className="p-6 relative flex-1 flex flex-col">
-                  <div className="mb-6 flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${service.color}`}></span>
-                      Key Features:
-                    </h3>
-                    <ul className="space-y-3">
-                      {service.features.map((feature, featureIndex) => (
-                        <li 
-                          key={featureIndex} 
-                          className="flex items-start gap-3 text-gray-700 group-hover:text-gray-900 transition-colors duration-300 transform group-hover:translate-x-2 transition-transform"
-                          style={{ transitionDelay: `${featureIndex * 100}ms` }}
-                        >
-                          <span className={`${service.iconColor} transform group-hover:scale-125 transition-transform duration-300 flex-shrink-0 mt-0.5`}>
-                            ✓
-                          </span>
-                          <span className="text-sm leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <p className="text-blue-100/90 text-lg leading-relaxed group-hover:text-white transition-colors duration-300 line-clamp-3 opacity-0 animate-in" style={{ animationDelay: `${delay + 600}ms` }}>
+                      {service.description}
+                    </p>
                   </div>
                   
-                  {/* Footer - Fixed at bottom */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100/50 mt-auto">
-                    <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300">
-                      {service.stats}
-                    </span>
-                    <Link
-                      to={service.detailsLink}
-                      className={`bg-gradient-to-r ${service.color} hover:${service.hoverColor} text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-sm whitespace-nowrap shadow-md`}
-                    >
-                      {service.buttonText}
-                    </Link>
+                  {/* Content Section */}
+                  <div className="p-6 relative flex-1 flex flex-col">
+                    <div className="mb-6 flex-1">
+                      <h3 className="font-semibold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors duration-300 flex items-center gap-2 opacity-0 animate-in" style={{ animationDelay: `${delay + 700}ms` }}>
+                        <span className={`w-2 h-2 rounded-full bg-gradient-to-r ${service.color}`}></span>
+                        Key Features:
+                      </h3>
+                      <ul className="space-y-3">
+                        {service.features.map((feature, featureIndex) => (
+                          <li 
+                            key={featureIndex} 
+                            className="flex items-start gap-3 text-gray-700 group-hover:text-gray-900 transition-colors duration-300 transform translate-x-[-20px] opacity-0 animate-in"
+                            style={{ 
+                              animationDelay: `${delay + 800 + (featureIndex * 100)}ms`,
+                              transitionDelay: `${featureIndex * 100}ms` 
+                            }}
+                          >
+                            <span className={`${service.iconColor} transform group-hover:scale-125 transition-transform duration-300 flex-shrink-0 mt-0.5`}>
+                              ✓
+                            </span>
+                            <span className="text-sm leading-relaxed">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100/50 mt-auto">
+                      <span className="text-sm text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-300 opacity-0 animate-in" style={{ animationDelay: `${delay + 1200}ms` }}>
+                        {service.stats}
+                      </span>
+                      <Link
+                        to={service.detailsLink}
+                        className={`bg-gradient-to-r ${service.color} hover:${service.hoverColor} text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-sm whitespace-nowrap shadow-md opacity-0 animate-in`}
+                        style={{ animationDelay: `${delay + 1300}ms` }}
+                      >
+                        {service.buttonText}
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        {/* Banking Process Section */}
-        <section className="mb-16">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 relative overflow-hidden border border-blue-100">
-            {/* Background gradient */}
+        {/* Banking Process Section with scale animation */}
+        <section className="mb-16" ref={processRef}>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 relative overflow-hidden border border-blue-100 scale-95 opacity-0 animate-in">
+            {/* Background gradient with scroll animation */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 animate-pulse"></div>
             
-            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
+            {/* Animated background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.1)_25%,rgba(0,0,0,0.1)_75%,transparent_75%,transparent)] bg-[length:20px_20px]"></div>
+            </div>
+            
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent opacity-0 animate-in" style={{ animationDelay: '200ms' }}>
               Our Banking Process
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -305,37 +342,43 @@ export default function BankingService() {
                   title: "Consultation & Planning",
                   description: "Personalized financial assessment and banking solution planning",
                   icon: "📋",
-                  color: "from-blue-500 to-blue-700"
+                  color: "from-blue-500 to-blue-700",
+                  delay: 300
                 },
                 {
                   step: "02",
                   title: "Account Setup",
                   description: "Fast and secure account opening with digital verification",
                   icon: "🔐",
-                  color: "from-green-500 to-emerald-600"
+                  color: "from-green-500 to-emerald-600",
+                  delay: 400
                 },
                 {
                   step: "03",
                   title: "Service Activation",
                   description: "Activate banking services, cards, and digital access",
                   icon: "⚡",
-                  color: "from-purple-500 to-indigo-600"
+                  color: "from-purple-500 to-indigo-600",
+                  delay: 500
                 },
                 {
                   step: "04",
                   title: "Ongoing Support",
                   description: "Dedicated relationship management and financial guidance",
                   icon: "🤝",
-                  color: "from-amber-500 to-yellow-600"
+                  color: "from-amber-500 to-yellow-600",
+                  delay: 600
                 }
               ].map((step, index) => (
                 <div 
                   key={index} 
-                  className="text-center group cursor-pointer transform hover:-translate-y-2 transition-all duration-500"
+                  className="text-center group cursor-pointer transform hover:-translate-y-2 transition-all duration-500 opacity-0 animate-in"
+                  style={{ animationDelay: `${step.delay}ms` }}
                 >
                   <div className="relative">
                     <div className={`w-20 h-20 bg-gradient-to-r ${step.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:shadow-lg transition-all duration-500 relative overflow-hidden shadow-md`}>
-                      <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors duration-300"></div>
+                      {/* Rotating background effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                       <span className="text-2xl relative z-10 transform group-hover:scale-110 transition-transform duration-300">
                         {step.icon}
                       </span>
@@ -356,82 +399,102 @@ export default function BankingService() {
           </div>
         </section>
 
-        {/* Testimonials */}
-        <section className="mb-16">
+        {/* Testimonials with alternating entry animations */}
+        <section className="mb-16" ref={testimonialsRef}>
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent opacity-0 animate-in" style={{ animationDelay: '100ms' }}>
               Customer Success Stories
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-600 max-w-2xl mx-auto opacity-0 animate-in" style={{ animationDelay: '200ms' }}>
               See how our banking solutions have helped individuals and businesses achieve their financial goals
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div 
-                key={index} 
-                className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 group relative overflow-hidden border border-blue-100"
-              >
-                {/* Gradient border effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
-                
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span 
-                      key={i} 
-                      className="text-yellow-400 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm"
-                      style={{ transitionDelay: `${i * 100}ms` }}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <blockquote className="text-gray-700 text-lg italic mb-4 group-hover:text-gray-900 transition-colors duration-300 relative">
-                  <span className="absolute -top-2 -left-2 text-4xl text-blue-200 opacity-50 group-hover:opacity-70 transition-opacity duration-300">"</span>
-                  {testimonial.quote}
-                  <span className="absolute -bottom-4 -right-2 text-4xl text-blue-200 opacity-50 group-hover:opacity-70 transition-opacity duration-300">"</span>
-                </blockquote>
-                <div className="relative">
-                  <div className="font-semibold text-gray-900 group-hover:text-gray-800 transition-colors duration-300">
-                    {testimonial.author}
+            {testimonials.map((testimonial, index) => {
+              const isLeft = index % 2 === 0;
+              const delay = 300 + (index * 200);
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 group relative overflow-hidden border border-blue-100 opacity-0 ${
+                    isLeft ? 'translate-x-[-50px]' : 'translate-x-[50px]'
+                  } animate-in`}
+                  style={{ animationDelay: `${delay}ms` }}
+                >
+                  {/* Gradient border effect with animation */}
+                  <div 
+                    className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500"
+                    style={{
+                      transform: isLeft ? 'translateX(-100%)' : 'translateX(100%)',
+                      transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease'
+                    }}
+                  ></div>
+                  
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <span 
+                        key={i} 
+                        className="text-yellow-400 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-sm opacity-0 animate-in"
+                        style={{ 
+                          animationDelay: `${delay + 100 + (i * 100)}ms`,
+                          transitionDelay: `${i * 100}ms` 
+                        }}
+                      >
+                        ★
+                      </span>
+                    ))}
                   </div>
-                  <div className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors duration-300">
-                    {testimonial.company}
+                  <blockquote className="text-gray-700 text-lg italic mb-4 group-hover:text-gray-900 transition-colors duration-300 relative opacity-0 animate-in" style={{ animationDelay: `${delay + 600}ms` }}>
+                    <span className="absolute -top-2 -left-2 text-4xl text-blue-200 opacity-50 group-hover:opacity-70 transition-opacity duration-300">"</span>
+                    {testimonial.quote}
+                    <span className="absolute -bottom-4 -right-2 text-4xl text-blue-200 opacity-50 group-hover:opacity-70 transition-opacity duration-300">"</span>
+                  </blockquote>
+                  <div className="relative opacity-0 animate-in" style={{ animationDelay: `${delay + 700}ms` }}>
+                    <div className="font-semibold text-gray-900 group-hover:text-gray-800 transition-colors duration-300">
+                      {testimonial.author}
+                    </div>
+                    <div className="text-gray-600 text-sm group-hover:text-gray-700 transition-colors duration-300">
+                      {testimonial.company}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        {/* Technology & Platform Stack */}
-        <section className="mb-16">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-blue-100">
-            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent">
+        {/* Technology & Platform Stack with staggered animation */}
+        <section className="mb-16" ref={technologyRef}>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-blue-100 opacity-0 scale-95 animate-in">
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent opacity-0 animate-in" style={{ animationDelay: '200ms' }}>
               Our Secure Banking Technology
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
               {[
-                { name: "FDIC Insured", icon: "🛡️", color: "from-blue-500 to-blue-700" },
-                { name: "256-bit SSL", icon: "🔒", color: "from-green-500 to-emerald-600" },
-                { name: "Biometric", icon: "👁️", color: "from-purple-500 to-indigo-600" },
-                { name: "AI Fraud", icon: "🤖", color: "from-amber-500 to-yellow-600" },
-                { name: "Mobile", icon: "📱", color: "from-red-500 to-orange-600" },
-                { name: "Cloud", icon: "☁️", color: "from-indigo-500 to-violet-600" },
-                { name: "Blockchain", icon: "⛓️", color: "from-blue-400 to-blue-600" },
-                { name: "Open API", icon: "🔗", color: "from-green-400 to-emerald-500" },
-                { name: "Contactless", icon: "📲", color: "from-purple-400 to-indigo-500" },
-                { name: "Analytics", icon: "📊", color: "from-amber-400 to-yellow-500" },
-                { name: "Encrypted", icon: "🔐", color: "from-red-400 to-orange-500" },
-                { name: "Secure", icon: "🛡️", color: "from-indigo-400 to-violet-500" }
+                { name: "FDIC Insured", icon: "🛡️", color: "from-blue-500 to-blue-700", delay: 300 },
+                { name: "256-bit SSL", icon: "🔒", color: "from-green-500 to-emerald-600", delay: 350 },
+                { name: "Biometric", icon: "👁️", color: "from-purple-500 to-indigo-600", delay: 400 },
+                { name: "AI Fraud", icon: "🤖", color: "from-amber-500 to-yellow-600", delay: 450 },
+                { name: "Mobile", icon: "📱", color: "from-red-500 to-orange-600", delay: 500 },
+                { name: "Cloud", icon: "☁️", color: "from-indigo-500 to-violet-600", delay: 550 },
+                { name: "Blockchain", icon: "⛓️", color: "from-blue-400 to-blue-600", delay: 600 },
+                { name: "Open API", icon: "🔗", color: "from-green-400 to-emerald-500", delay: 650 },
+                { name: "Contactless", icon: "📲", color: "from-purple-400 to-indigo-500", delay: 700 },
+                { name: "Analytics", icon: "📊", color: "from-amber-400 to-yellow-500", delay: 750 },
+                { name: "Encrypted", icon: "🔐", color: "from-red-400 to-orange-500", delay: 800 },
+                { name: "Secure", icon: "🛡️", color: "from-indigo-400 to-violet-500", delay: 850 }
               ].map((tech, index) => (
                 <div 
                   key={index}
-                  className="text-center group transform hover:-translate-y-2 transition-all duration-300"
+                  className="text-center group transform hover:-translate-y-2 transition-all duration-300 opacity-0 scale-90 animate-in"
+                  style={{ animationDelay: `${tech.delay}ms` }}
                 >
-                  <div className={`w-16 h-16 bg-gradient-to-r ${tech.color} rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 shadow-md`}>
-                    <span className="text-2xl">{tech.icon}</span>
+                  <div className={`w-16 h-16 bg-gradient-to-r ${tech.color} rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300 shadow-md relative overflow-hidden`}>
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                    <span className="text-2xl relative z-10">{tech.icon}</span>
                   </div>
                   <div className="font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-300 text-sm">
                     {tech.name}
@@ -442,14 +505,14 @@ export default function BankingService() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section>
-          <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 rounded-2xl p-12 text-white text-center relative overflow-hidden group border border-blue-600/30">
+        {/* CTA Section with powerful entrance */}
+        <section ref={ctaRef}>
+          <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 rounded-2xl p-12 text-white text-center relative overflow-hidden group border border-blue-600/30 opacity-0 scale-95 animate-in" style={{ animationDelay: '200ms' }}>
             {/* Animated background elements */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-400 animate-pulse"></div>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-700/50 via-blue-800/50 to-blue-900/50 group-hover:from-blue-700/60 group-hover:via-blue-800/60 group-hover:to-blue-900/60 transition-all duration-1000"></div>
             
-            {/* Floating particles */}
+            {/* Floating particles with scroll interaction */}
             <div className="absolute inset-0 overflow-hidden">
               {[...Array(8)].map((_, i) => (
                 <div
@@ -458,37 +521,40 @@ export default function BankingService() {
                   style={{
                     left: `${Math.random() * 100}%`,
                     animationDelay: `${i * 2}s`,
-                    animationDuration: `${15 + i * 5}s`
+                    animationDuration: `${15 + i * 5}s`,
+                    transform: `translateY(${scrollProgress * -50}px)`
                   }}
                 ></div>
               ))}
             </div>
 
             <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 transform group-hover:scale-105 transition-transform duration-500 drop-shadow-sm">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 transform group-hover:scale-105 transition-transform duration-500 drop-shadow-sm opacity-0 animate-in" style={{ animationDelay: '400ms' }}>
                 Ready to Bank with Confidence?
               </h2>
-              <p className="text-blue-100 text-xl mb-8 max-w-2xl mx-auto group-hover:text-white transition-colors duration-300 leading-relaxed">
+              <p className="text-blue-100 text-xl mb-8 max-w-2xl mx-auto group-hover:text-white transition-colors duration-300 leading-relaxed opacity-0 animate-in" style={{ animationDelay: '500ms' }}>
                 Whether you're opening your first account, growing your business, or planning for retirement, 
                 our financial advisors are ready to help you achieve your goals.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   to="/contact"
-                  className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group/btn border border-white/20"
+                  className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 hover:scale-105 transform transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group/btn border border-white/20 opacity-0 animate-in"
+                  style={{ animationDelay: '600ms' }}
                 >
                   <span className="relative z-10">Speak with Financial Advisor</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300"></div>
                 </Link>
                 <Link
                   to="/login"
-                  className="border border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-700 hover:scale-105 transform transition-all duration-300 relative overflow-hidden group/btn backdrop-blur-sm"
+                  className="border border-white text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white hover:text-blue-700 hover:scale-105 transform transition-all duration-300 relative overflow-hidden group/btn backdrop-blur-sm opacity-0 animate-in"
+                  style={{ animationDelay: '700ms' }}
                 >
                   <span className="relative z-10">Open an Account</span>
                   <div className="absolute inset-0 bg-white opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300"></div>
                 </Link>
               </div>
-              <p className="text-blue-200 mt-6 text-sm group-hover:text-blue-100 transition-colors duration-300">
+              <p className="text-blue-200 mt-6 text-sm group-hover:text-blue-100 transition-colors duration-300 opacity-0 animate-in" style={{ animationDelay: '800ms' }}>
                 FDIC insured • 256-bit encryption • 24/7 customer support
               </p>
             </div>
@@ -522,6 +588,46 @@ export default function BankingService() {
             transform: scale(1.1);
           }
         }
+        @keyframes slideInFromLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-50px) translateY(30px) rotate(-5deg);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0) translateY(0) rotate(0deg);
+          }
+        }
+        @keyframes slideInFromRight {
+          from {
+            opacity: 0;
+            transform: translateX(50px) translateY(30px) rotate(5deg);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0) translateY(0) rotate(0deg);
+          }
+        }
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
@@ -531,11 +637,61 @@ export default function BankingService() {
         .animate-pulse-slow {
           animation: pulse-slow 6s ease-in-out infinite;
         }
+        .animate-in {
+          animation: slideInFromLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
         .line-clamp-3 {
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
+        }
+        
+        /* Different animation classes for variety */
+        .animate-in:nth-child(even) {
+          animation-name: slideInFromRight;
+        }
+        
+        .animate-in.scale-in {
+          animation-name: scaleIn;
+        }
+        
+        .animate-in.fade-up {
+          animation-name: fadeInUp;
+        }
+        
+        /* Stagger animations for children */
+        .stagger-children > *:nth-child(1) { animation-delay: 100ms; }
+        .stagger-children > *:nth-child(2) { animation-delay: 200ms; }
+        .stagger-children > *:nth-child(3) { animation-delay: 300ms; }
+        .stagger-children > *:nth-child(4) { animation-delay: 400ms; }
+        .stagger-children > *:nth-child(5) { animation-delay: 500ms; }
+        .stagger-children > *:nth-child(6) { animation-delay: 600ms; }
+        
+        /* Enhanced hover effects */
+        .hover-lift {
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Gradient text animation */
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
         }
       `}</style>
     </div>

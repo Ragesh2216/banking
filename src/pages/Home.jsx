@@ -43,13 +43,194 @@ const Home = () => {
   const isTestimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.2 });
   const isCTAInView = useInView(ctaRef, { once: true, amount: 0.3 });
 
-  // Handle scroll for animations
+  // ================== SMOOTH SCROLL SETUP ==================
+  useEffect(() => {
+    // Enhanced smooth scroll function
+    const smoothScrollTo = (targetElement, duration = 800) => {
+      const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+      const startPosition = window.pageYOffset;
+      const distance = targetPosition - startPosition - 80; // Adjust for header
+      let startTime = null;
+
+      const easeInOutCubic = (t) => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
+
+      const animation = (currentTime) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const easeProgress = easeInOutCubic(progress);
+        
+        window.scrollTo(0, startPosition + distance * easeProgress);
+        
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation);
+        }
+      };
+
+      requestAnimationFrame(animation);
+    };
+
+    // Handle all smooth scroll clicks
+    const handleSmoothScrollClick = (e) => {
+      // Check if click is on a button that should trigger smooth scroll
+      const button = e.target.closest('button');
+      const link = e.target.closest('a[href^="#"]');
+      
+      let targetId = null;
+      
+      // Check for onclick scrollIntoView
+      if (button && button.onclick && button.onclick.toString().includes('scrollIntoView')) {
+        const onclickText = button.onclick.toString();
+        const match = onclickText.match(/getElementById\('([^']+)'\)/);
+        if (match) {
+          targetId = match[1];
+        }
+      }
+      
+      // Check for anchor links
+      if (link) {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          targetId = href.substring(1);
+        }
+      }
+
+      if (targetId) {
+        e.preventDefault();
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          if ('scrollBehavior' in document.documentElement.style) {
+            // Use native smooth scroll if available
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          } else {
+            // Use custom smooth scroll for older browsers
+            smoothScrollTo(targetElement);
+          }
+        }
+      }
+    };
+
+    // Enhanced scroll event handler for progress bar
+    const handleScrollWithProgress = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      // Update progress bar
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      
+      const progressBar = document.querySelector('.progress-bar');
+      if (progressBar) {
+        progressBar.style.width = scrolled + '%';
+      }
+    };
+
+    // Mobile-specific optimizations
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Disable momentum scrolling for better control
+      document.body.style.overscrollBehaviorY = 'contain';
+      
+      // Improve touch scrolling
+      document.documentElement.style.scrollBehavior = 'smooth';
+      document.body.style.scrollBehavior = 'smooth';
+      
+      // Prevent pull-to-refresh on iOS
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'auto';
+    }
+
+    // Add CSS for smooth scroll
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Enable smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        html {
+          scroll-behavior: smooth !important;
+        }
+        
+        body {
+          overscroll-behavior-y: contain;
+          -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Improve scroll performance */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+        
+        button, a {
+          touch-action: manipulation;
+        }
+      }
+      
+      /* Prevent scroll chaining */
+      .overflow-x-hidden {
+        overflow-x: hidden;
+      }
+      
+      /* Smooth transitions */
+      .smooth-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      /* Progress bar animation */
+      .progress-bar {
+        transition: width 0.1s ease-out;
+      }
+      
+      /* Fix for iOS Safari */
+      @supports (-webkit-touch-callout: none) {
+        .min-h-screen {
+          min-height: -webkit-fill-available;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Add event listeners
+    document.addEventListener('click', handleSmoothScrollClick);
+    window.addEventListener('scroll', handleScrollWithProgress, { passive: true });
+
+    return () => {
+      document.removeEventListener('click', handleSmoothScrollClick);
+      window.removeEventListener('scroll', handleScrollWithProgress);
+      document.head.removeChild(style);
+      
+      // Cleanup styles
+      document.body.style.overscrollBehaviorY = '';
+      document.documentElement.style.scrollBehavior = '';
+      document.body.style.scrollBehavior = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
+  // ================== ORIGINAL CODE CONTINUES ==================
+  
+  // Handle scroll for animations (updated for mobile)
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      // Use requestAnimationFrame for smoother performance on mobile
+      requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 50);
+      });
     };
     
-    window.addEventListener('scroll', handleScroll);
+    // Use passive listener for better performance
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -279,8 +460,24 @@ const Home = () => {
     ghost: "bg-transparent text-blue-600 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200"
   };
 
+  // ================== SMOOTH SCROLL HELPER FUNCTION ==================
+  const scrollToElement = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    if ('scrollBehavior' in document.documentElement.style) {
+      window.scrollTo({
+        top: element.offsetTop - 80,
+        behavior: 'smooth'
+      });
+    } else {
+      // Fallback for older browsers
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 overflow-x-hidden smooth-transition">
      
       {/* Hero Section */}
       <section ref={heroRef} className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -306,7 +503,7 @@ const Home = () => {
               custom={0}
             >
               <motion.button
-                onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => scrollToElement('features')}
                 className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-600 font-medium mb-6 group hover:from-blue-200 hover:to-cyan-200 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -868,7 +1065,7 @@ const Home = () => {
 
       {/* Floating Help Button */}
       <motion.button
-        onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+        onClick={() => scrollToElement('features')}
         className="fixed right-6 bottom-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl z-50"
         aria-label="Get Help"
         initial={{ scale: 0, opacity: 0 }}
@@ -882,14 +1079,14 @@ const Home = () => {
 
       {/* Scroll Progress Indicator */}
       <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-40"
+        className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-40 progress-container"
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.5 }}
       >
         <div 
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
-          style={{ width: `${(window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%` }}
+          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 progress-bar"
+          style={{ width: '0%' }}
         />
       </motion.div>
 

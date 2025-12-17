@@ -24,7 +24,129 @@ const Latest = () => {
   const featuresRef = useRef(null);
   const pricingRef = useRef(null);
 
-  // Handle scroll for animations
+  // ================== SMOOTH SCROLL EFFECT ==================
+  useEffect(() => {
+    // Enhanced smooth scroll function
+    const smoothScrollTo = (targetElement, duration = 800) => {
+      const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+      const startPosition = window.pageYOffset;
+      const distance = targetPosition - startPosition - 80; // Adjust for header
+      let startTime = null;
+
+      const easeInOutCubic = (t) => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      };
+
+      const animation = (currentTime) => {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const easeProgress = easeInOutCubic(progress);
+        
+        window.scrollTo(0, startPosition + distance * easeProgress);
+        
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation);
+        }
+      };
+
+      requestAnimationFrame(animation);
+    };
+
+    // Handle all smooth scroll clicks
+    const handleSmoothScrollClick = (e) => {
+      // Check if click is on a button/div that should trigger smooth scroll
+      const element = e.target.closest('button, div');
+      
+      if (element && element.onclick) {
+        const onclickText = element.onclick.toString();
+        const match = onclickText.match(/scrollToSection\('([^']+)'\)/);
+        if (match) {
+          e.preventDefault();
+          const targetId = match[1];
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            if ('scrollBehavior' in document.documentElement.style) {
+              window.scrollTo({
+                top: targetElement.offsetTop - 80,
+                behavior: 'smooth'
+              });
+            } else {
+              smoothScrollTo(targetElement);
+            }
+            return false;
+          }
+        }
+      }
+    };
+
+    // Mobile-specific optimizations
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Improve touch scrolling
+      document.documentElement.style.scrollBehavior = 'smooth';
+      document.body.style.scrollBehavior = 'smooth';
+    }
+
+    // Add CSS for smooth scroll
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Enable smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        html {
+          scroll-behavior: smooth !important;
+        }
+        
+        body {
+          overscroll-behavior-y: contain;
+          -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Improve scroll performance */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+        
+        button, [onclick] {
+          touch-action: manipulation;
+        }
+      }
+      
+      /* Smooth transitions */
+      .smooth-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      /* Fix for iOS Safari */
+      @supports (-webkit-touch-callout: none) {
+        .min-h-screen {
+          min-height: -webkit-fill-available;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Add event listener
+    document.addEventListener('click', handleSmoothScrollClick, true);
+
+    return () => {
+      document.removeEventListener('click', handleSmoothScrollClick, true);
+      document.head.removeChild(style);
+      
+      // Cleanup styles
+      document.documentElement.style.scrollBehavior = '';
+      document.body.style.scrollBehavior = '';
+    };
+  }, []);
+
+  // ================== ORIGINAL SCROLL HANDLER ==================
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100);
@@ -45,6 +167,44 @@ const Latest = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // ================== ENHANCED SCROLL TO SECTION ==================
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      if ('scrollBehavior' in document.documentElement.style) {
+        window.scrollTo({
+          top: section.offsetTop - 80,
+          behavior: 'smooth'
+        });
+      } else {
+        // Fallback animation
+        const start = window.pageYOffset;
+        const target = section.offsetTop - 80;
+        const duration = 800;
+        let startTime = null;
+
+        const animateScroll = (currentTime) => {
+          if (startTime === null) startTime = currentTime;
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          // Cubic ease in/out
+          const ease = progress < 0.5 
+            ? 4 * progress * progress * progress 
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+          window.scrollTo(0, start + (target - start) * ease);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+          }
+        };
+        
+        requestAnimationFrame(animateScroll);
+      }
+    }
+  };
 
   // Plans data with enhanced icons
   const plans = [
@@ -195,23 +355,16 @@ const Latest = () => {
     { icon: <Clock4 className="w-6 h-6" />, text: '24/7 Support', subtext: 'Always Available' }
   ];
 
-  // Scroll to section
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-blue-50 smooth-transition">
      
-
       {/* Hero Section */}
       <section id="hero" className="pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 px-3 sm:px-4 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
-          <div className={`inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-600 text-sm sm:text-base font-medium mb-6 sm:mb-8 transition-all duration-300 ${isScrolled ? 'scale-95' : 'scale-100'} group cursor-pointer hover:from-blue-200 hover:to-cyan-200`}
-               onClick={() => scrollToSection('pricing')}>
+          <div 
+            className={`inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-600 text-sm sm:text-base font-medium mb-6 sm:mb-8 transition-all duration-300 ${isScrolled ? 'scale-95' : 'scale-100'} group cursor-pointer hover:from-blue-200 hover:to-cyan-200`}
+            onClick={() => scrollToSection('pricing')}
+          >
             <Sparkle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:rotate-12 transition-transform" />
             No Hidden Fees • Transparent Pricing
             <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -453,9 +606,6 @@ const Latest = () => {
           </div>
         </div>
       </section>
-
-      
-
     </div>
   );
 };

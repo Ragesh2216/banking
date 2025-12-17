@@ -1,19 +1,52 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Check, X, Zap, Shield, Globe, Clock, 
   CreditCard, Building, Users, Smartphone,
   DollarSign, PieChart, TrendingUp, Lock,
   HelpCircle, ArrowRight, Crown, Sparkles,
-  BadgeCheck, Target, Award, Star
+  BadgeCheck, Target, Award, Star,
+  ShieldCheck, Globe2, Clock4, CreditCard as CreditCardIcon,
+  Building2, Users2, Smartphone as SmartphoneIcon,
+  DollarSign as DollarSignIcon, PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon, Lock as LockIcon,
+  ChevronRight, Heart, Award as AwardIcon,
+  Trophy, CheckCircle, XCircle, Sparkle,
+  Shield as ShieldIcon, Globe as GlobeIcon
 } from 'lucide-react';
-import{Link} from "react-router-dom"; 
+import { Link } from "react-router-dom"; 
 
 const Latest = () => {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [activePlan, setActivePlan] = useState('premium');
   const [isAnnual, setIsAnnual] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [visibleSection, setVisibleSection] = useState('');
+  const featuresRef = useRef(null);
+  const pricingRef = useRef(null);
 
-  // Plans data
+  // Handle scroll for animations
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+      
+      // Check which section is visible
+      const sections = ['hero', 'pricing', 'features', 'trust', 'faq', 'comparison'];
+      sections.forEach(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.8 && rect.bottom > 0) {
+            setVisibleSection(section);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Plans data with enhanced icons
   const plans = [
     {
       id: 'basic',
@@ -38,9 +71,10 @@ const Latest = () => {
         { text: 'Travel Insurance', included: false }
       ],
       color: 'from-blue-500 to-cyan-500',
+      hoverColor: 'hover:from-blue-600 hover:to-cyan-600',
       popular: false,
       cta: 'Get Started',
-      icon: <CreditCard className="w-6 h-6" />
+      icon: <CreditCardIcon className="w-6 h-6" />
     },
     {
       id: 'premium',
@@ -65,6 +99,7 @@ const Latest = () => {
         { text: 'Private Banking', included: false }
       ],
       color: 'from-purple-600 to-pink-600',
+      hoverColor: 'hover:from-purple-700 hover:to-pink-700',
       popular: true,
       cta: 'Upgrade Now',
       icon: <Crown className="w-6 h-6" />
@@ -92,34 +127,35 @@ const Latest = () => {
         { text: 'Concierge Services', included: true }
       ],
       color: 'from-amber-500 to-orange-600',
+      hoverColor: 'hover:from-amber-600 hover:to-orange-700',
       popular: false,
       cta: 'Contact Sales',
-      icon: <Award className="w-6 h-6" />
+      icon: <Trophy className="w-6 h-6" />
     }
   ];
 
-  // Add-ons
+  // Add-ons with enhanced icons
   const addons = [
     {
       name: 'Investment Pro',
       price: '+$4.99/month',
       description: 'Advanced trading tools and analytics',
       features: ['Real-time market data', 'Advanced charts', 'Portfolio alerts'],
-      icon: <TrendingUp className="w-5 h-5" />
+      icon: <TrendingUpIcon className="w-6 h-6" />
     },
     {
       name: 'Family Banking',
       price: '+$14.99/month',
       description: 'Manage up to 5 family members',
       features: ['Parental controls', 'Shared budgeting', 'Family rewards'],
-      icon: <Users className="w-5 h-5" />
+      icon: <Users2 className="w-6 h-6" />
     },
     {
       name: 'Business Tools',
       price: '+$19.99/month',
       description: 'Tools for entrepreneurs and freelancers',
       features: ['Invoice generation', 'Expense tracking', 'Tax reporting'],
-      icon: <Building className="w-5 h-5" />
+      icon: <Building2 className="w-6 h-6" />
     }
   ];
 
@@ -151,59 +187,65 @@ const Latest = () => {
     }
   ];
 
-  // Features comparison
-  const featureComparison = [
-    { name: 'Monthly Fee', basic: '$0', premium: '$9.99', elite: '$49.99' },
-    { name: 'Accounts Included', basic: '1', premium: '5', elite: 'Unlimited' },
-    { name: 'ATM Fee Reimbursement', basic: 'None', premium: '$15/month', elite: 'Unlimited' },
-    { name: 'Foreign Transaction Fees', basic: '3%', premium: '0%', elite: '0%' },
-    { name: 'Investment Accounts', basic: 'No', premium: 'Yes', elite: 'Yes' },
-    { name: 'Priority Support', basic: 'No', premium: 'Yes', elite: '24/7 Dedicated' },
-    { name: 'Mobile Check Deposit', basic: 'Yes', premium: 'Yes', elite: 'Yes' },
-    { name: 'Bill Pay', basic: 'Yes', premium: 'Yes', elite: 'Yes' },
-    { name: 'Travel Insurance', basic: 'No', premium: 'No', elite: 'Yes' },
-    { name: 'Concierge Services', basic: 'No', premium: 'No', elite: 'Yes' }
+  // Trust badges with enhanced icons
+  const trustBadges = [
+    { icon: <ShieldCheck className="w-6 h-6" />, text: 'FDIC Insured', subtext: 'Up to $250,000' },
+    { icon: <LockIcon className="w-6 h-6" />, text: 'Bank-Level Security', subtext: '256-bit Encryption' },
+    { icon: <Globe2 className="w-6 h-6" />, text: 'Global Banking', subtext: '150+ Countries' },
+    { icon: <Clock4 className="w-6 h-6" />, text: '24/7 Support', subtext: 'Always Available' }
   ];
+
+  // Scroll to section
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-blue-50">
      
 
       {/* Hero Section */}
-      <section className="py-8 sm:py-12 md:py-16 px-3 sm:px-4 lg:px-8">
+      <section id="hero" className="pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8 px-3 sm:px-4 lg:px-8">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-100 text-blue-600 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5" />
+          <div className={`inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-600 text-sm sm:text-base font-medium mb-6 sm:mb-8 transition-all duration-300 ${isScrolled ? 'scale-95' : 'scale-100'} group cursor-pointer hover:from-blue-200 hover:to-cyan-200`}
+               onClick={() => scrollToSection('pricing')}>
+            <Sparkle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:rotate-12 transition-transform" />
             No Hidden Fees • Transparent Pricing
+            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </div>
           
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
             Simple, Transparent
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
               Pricing For Everyone
             </span>
           </h1>
           
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto mb-6 sm:mb-8 px-3">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-12 px-3 sm:px-4">
             Choose the perfect plan for your financial needs. All plans include FDIC insurance and 24/7 customer support.
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center mb-8 sm:mb-12">
-            <div className="relative bg-gray-100 rounded-xl p-1 inline-flex">
+          <div className="flex items-center justify-center mb-8 sm:mb-12 px-3">
+            <div className="relative bg-gray-100 rounded-xl p-1 sm:p-1.5 inline-flex shadow-sm">
               <button
                 onClick={() => setIsAnnual(false)}
-                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${!isAnnual ? 'bg-white text-gray-900 shadow-md' : 'text-gray-600 hover:text-gray-900'}`}
+                className={`px-5 sm:px-7 py-2.5 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 ${!isAnnual ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform -translate-y-0.5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'} flex items-center`}
               >
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Monthly Billing
               </button>
               <button
                 onClick={() => setIsAnnual(true)}
-                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all ${isAnnual ? 'bg-white text-gray-900 shadow-md' : 'text-gray-600 hover:text-gray-900'}`}
+                className={`px-5 sm:px-7 py-2.5 sm:py-3.5 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 ${isAnnual ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform -translate-y-0.5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'} flex items-center`}
               >
+                <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 <span className="flex items-center">
                   Annual Billing
-                  <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                  <span className="ml-2 px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                     Save 20%
                   </span>
                 </span>
@@ -213,68 +255,72 @@ const Latest = () => {
         </div>
       </section>
 
-      {/* Pricing Cards - Mobile Carousel */}
-      <section className="py-4 sm:py-8 px-3 sm:px-4 lg:px-8">
+      {/* Pricing Cards */}
+      <section id="pricing" ref={pricingRef} className="py-8 sm:py-12 px-3 sm:px-4 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Mobile Carousel View */}
-          <div className="md:hidden overflow-x-auto pb-6 -mx-3">
-            <div className="flex space-x-4 px-3 min-w-max">
+          <div className="md:hidden overflow-x-auto pb-8 -mx-3">
+            <div className="flex space-x-6 px-3 min-w-max">
               {plans.map((plan) => (
                 <div
                   key={plan.id}
-                  className={`w-80 flex-shrink-0 rounded-2xl border-2 ${plan.popular ? 'border-blue-500 shadow-xl' : 'border-gray-200'} bg-white p-6`}
+                  className={`w-80 flex-shrink-0 rounded-2xl border-2 ${plan.popular ? 'border-blue-500 shadow-2xl' : 'border-gray-200'} bg-white p-6 transition-all duration-300 hover:shadow-xl`}
                 >
                   {/* Plan Header */}
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center">
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${plan.color} flex items-center justify-center mr-3`}>
-                        {plan.icon}
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${plan.color} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300`}>
+                        <div className="text-white">
+                          {plan.icon}
+                        </div>
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900">{plan.name}</h3>
-                        <p className="text-xs text-gray-500">{plan.tagline}</p>
+                        <h3 className="font-bold text-gray-900 text-lg">{plan.name}</h3>
+                        <p className="text-sm text-gray-500">{plan.tagline}</p>
                       </div>
                     </div>
                     {plan.popular && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
+                      <span className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
                         Popular
                       </span>
                     )}
                   </div>
 
                   {/* Price */}
-                  <div className="mb-6">
+                  <div className="mb-8">
                     <div className="flex items-baseline">
-                      <span className="text-3xl font-bold text-gray-900">
+                      <span className="text-4xl font-bold text-gray-900">
                         ${isAnnual ? plan.price.annual : plan.price.monthly}
                       </span>
-                      <span className="text-gray-500 ml-2">/month</span>
+                      <span className="text-gray-500 text-lg ml-2">/month</span>
                     </div>
                     {isAnnual && plan.id !== 'basic' && (
-                      <div className="text-sm text-green-600 mt-1">
+                      <div className="text-sm text-green-600 mt-2 font-medium flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-1" />
                         {plan.price.annually}
                       </div>
                     )}
                     {plan.id === 'basic' && (
-                      <div className="text-lg font-semibold text-gray-900 mt-1">
+                      <div className="text-lg font-semibold text-gray-900 mt-2 flex items-center">
+                        <Sparkle className="w-5 h-5 mr-2 text-blue-500" />
                         Free forever
                       </div>
                     )}
                   </div>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-600 mb-6">{plan.description}</p>
+                  <p className="text-sm text-gray-600 mb-8">{plan.description}</p>
 
                   {/* Features */}
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-4 mb-8">
                     {plan.features.slice(0, 5).map((feature, index) => (
-                      <div key={index} className="flex items-center">
+                      <div key={index} className="flex items-center group">
                         {feature.included ? (
-                          <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 group-hover:scale-110 transition-transform" />
                         ) : (
-                          <X className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
+                          <XCircle className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
                         )}
-                        <span className={`text-sm ${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
+                        <span className={`text-sm ${feature.included ? 'text-gray-700 group-hover:text-gray-900' : 'text-gray-400'}`}>
                           {feature.text}
                         </span>
                       </div>
@@ -282,8 +328,12 @@ const Latest = () => {
                   </div>
 
                   {/* CTA */}
-                  <Link to="/404" className={`w-full py-3 rounded-lg font-semibold transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
+                  <Link 
+                    to="/404" 
+                    className={`w-full py-3.5 rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center group ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1' : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-md'}`}
+                  >
                     {plan.cta}
+                    <ArrowRight className={`ml-2 w-4 h-4 ${plan.popular ? 'group-hover:translate-x-1' : ''} transition-transform`} />
                   </Link>
                 </div>
               ))}
@@ -291,62 +341,67 @@ const Latest = () => {
           </div>
 
           {/* Desktop Grid View */}
-          <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="hidden md:grid md:grid-cols-3 gap-8 lg:gap-10">
             {plans.map((plan) => (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl border-2 ${plan.popular ? 'border-blue-500 shadow-2xl scale-105' : 'border-gray-200'} bg-white p-6 lg:p-8 transition-transform`}
+                className={`relative rounded-2xl border-2 ${plan.popular ? 'border-blue-500 shadow-2xl' : 'border-gray-200'} bg-white p-8 transition-all duration-500 hover:shadow-2xl ${plan.popular ? 'scale-105' : 'hover:scale-[1.02]'}`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full text-sm font-semibold">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full text-sm font-semibold shadow-lg flex items-center">
+                      <Star className="w-4 h-4 mr-2 fill-current" />
                       Most Popular
                     </div>
                   </div>
                 )}
 
                 {/* Plan Header */}
-                <div className="mb-6">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${plan.color} flex items-center justify-center mb-4`}>
-                    {plan.icon}
+                <div className="mb-8">
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${plan.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                    <div className="text-white">
+                      {plan.icon}
+                    </div>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <p className="text-gray-600">{plan.tagline}</p>
                 </div>
 
                 {/* Price */}
-                <div className="mb-8">
+                <div className="mb-10">
                   <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-gray-900">
+                    <span className="text-5xl font-bold text-gray-900">
                       ${isAnnual ? plan.price.annual : plan.price.monthly}
                     </span>
-                    <span className="text-gray-500 text-lg ml-2">/month</span>
+                    <span className="text-gray-500 text-xl ml-2">/month</span>
                   </div>
                   {isAnnual && plan.id !== 'basic' && (
-                    <div className="text-sm text-green-600 mt-2 font-medium">
+                    <div className="text-base text-green-600 mt-3 font-medium flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2" />
                       {plan.price.annually}
                     </div>
                   )}
                   {plan.id === 'basic' && (
-                    <div className="text-xl font-semibold text-gray-900 mt-2">
+                    <div className="text-xl font-semibold text-gray-900 mt-3 flex items-center">
+                      <Sparkle className="w-6 h-6 mr-2 text-blue-500" />
                       Free forever
                     </div>
                   )}
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-600 mb-8">{plan.description}</p>
+                <p className="text-gray-600 mb-10 text-lg">{plan.description}</p>
 
                 {/* Features */}
-                <div className="space-y-4 mb-8">
+                <div className="space-y-5 mb-10">
                   {plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center">
+                    <div key={index} className="flex items-center group">
                       {feature.included ? (
-                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                        <CheckCircle className="w-6 h-6 text-green-500 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
                       ) : (
-                        <X className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
+                        <XCircle className="w-6 h-6 text-gray-300 mr-4 flex-shrink-0" />
                       )}
-                      <span className={`${feature.included ? 'text-gray-700' : 'text-gray-400'}`}>
+                      <span className={`text-base ${feature.included ? 'text-gray-700 group-hover:text-gray-900' : 'text-gray-400'}`}>
                         {feature.text}
                       </span>
                     </div>
@@ -354,8 +409,12 @@ const Latest = () => {
                 </div>
 
                 {/* CTA */}
-                <Link to="/404" className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}>
+                <Link 
+                  to="/404" 
+                  className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center group ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-1' : 'bg-gray-100 text-gray-800 hover:bg-gray-200 hover:shadow-lg border-2 border-gray-200'}`}
+                >
                   {plan.cta}
+                  <ArrowRight className={`ml-3 w-5 h-5 ${plan.popular ? 'group-hover:translate-x-2' : 'group-hover:translate-x-1'} transition-transform`} />
                 </Link>
               </div>
             ))}
@@ -363,41 +422,55 @@ const Latest = () => {
         </div>
       </section>
 
-    
-
       {/* Trust Badges */}
-      <section className="py-8 sm:py-12 px-3 sm:px-4 lg:px-8">
+      <section id="trust" className="py-12 sm:py-16 px-3 sm:px-4 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-6 sm:mb-8">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3">
+          <div className="text-center mb-10 sm:mb-12">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
               Trusted by Millions Worldwide
             </h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Your security and satisfaction are our top priorities
+            </p>
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { icon: <Shield />, text: 'FDIC Insured', subtext: 'Up to $250,000' },
-              { icon: <Lock />, text: 'Bank-Level Security', subtext: '256-bit Encryption' },
-              { icon: <Globe />, text: 'Global Banking', subtext: '150+ Countries' },
-              { icon: <Clock />, text: '24/7 Support', subtext: 'Always Available' }
-            ].map((badge, index) => (
-              <div key={index} className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 text-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <div className="text-blue-600">
+            {trustBadges.map((badge, index) => (
+              <div 
+                key={index} 
+                className={`bg-white rounded-xl p-5 sm:p-6 border border-gray-200 text-center transition-all duration-500 hover:shadow-xl hover:border-blue-200 hover:scale-105 ${visibleSection === 'trust' ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 flex items-center justify-center mx-auto mb-4 group hover:from-blue-200 hover:to-cyan-200 transition-colors">
+                  <div className="text-blue-600 group-hover:scale-110 transition-transform">
                     {badge.icon}
                   </div>
                 </div>
-                <div className="font-semibold text-gray-900 text-sm sm:text-base">{badge.text}</div>
-                <div className="text-xs sm:text-sm text-gray-600 mt-1">{badge.subtext}</div>
+                <div className="font-bold text-gray-900 text-base sm:text-lg mb-1">{badge.text}</div>
+                <div className="text-sm text-gray-600">{badge.subtext}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-     
+      {/* Floating CTA Button */}
+      <button
+        onClick={() => scrollToSection('pricing')}
+        className={`fixed right-6 bottom-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 z-50 group ${isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-label="View Pricing"
+      >
+        <DollarSignIcon className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+      </button>
 
-     
+      {/* Scroll Progress Indicator */}
+      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-40">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
+          style={{ width: `${(window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%` }}
+        />
+      </div>
+
     </div>
   );
 };

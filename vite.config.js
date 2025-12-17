@@ -1,7 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
+
+// ✅ Correct version for Vercel
 export default defineConfig({
-  base: '/banking/',
   plugins: [react()],
-})
+  base: '/',
+});

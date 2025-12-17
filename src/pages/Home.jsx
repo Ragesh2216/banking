@@ -509,63 +509,64 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" ref={featuresRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={featuresControls}
-            variants={fadeInUp}
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Why Millions Trust Us
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Banking should be simple, secure, and smart. Here's how we're different.
-            </p>
-          </motion.div>
+     {/* Features Section */}
+<section id="features" ref={featuresRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+  <div className="max-w-7xl mx-auto">
+    <motion.div 
+      className="text-center mb-16"
+      initial={{ opacity: 0, y: 20 }}
+      animate={featuresControls}
+      variants={fadeInUp}
+    >
+      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+        Why Millions Trust Us
+      </h2>
+      <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        Banking should be simple, secure, and smart. Here's how we're different.
+      </p>
+    </motion.div>
 
+    <motion.div 
+      className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+      initial="hidden"
+      animate={featuresControls}
+      variants={staggerContainer}
+    >
+      {features.map((feature, index) => (
+        <motion.div 
+          key={index}
+          className="group relative bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300"
+          variants={fadeInUp}
+          whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
+        >
           <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-            initial="hidden"
-            animate={featuresControls}
-            variants={staggerContainer}
+            className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-6 shadow-lg`}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400 }}
           >
-            {features.map((feature, index) => (
-              <motion.div 
-                key={index}
-                className="group relative bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300"
-                variants={fadeInUp}
-                whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
-              >
-                <motion.div 
-                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-6 shadow-lg`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <div className="text-white">
-                    {feature.icon}
-                  </div>
-                </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 mb-6">{feature.description}</p>
-                <div className="mt-auto">
-                  <motion.button 
-                    className={`px-5 py-3 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center w-full ${feature.buttonColor} text-white shadow-md hover:shadow-lg`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  ><Link to="/404" >
-                    Learn More
-                    </Link>
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
+            <div className="text-white">
+              {feature.icon}
+            </div>
           </motion.div>
-        </div>
-      </section>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+          <p className="text-gray-600 mb-6">{feature.description}</p>
+          <div className="mt-auto">
+            <Link to="/404">
+              <motion.button 
+                className={`w-full px-5 py-3 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center ${feature.buttonColor} text-white shadow-md hover:shadow-lg group`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Learn More
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            </Link>
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
+  </div>
+</section>
 
       {/* Account Types Section */}
       <section ref={accountsRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50">

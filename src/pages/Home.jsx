@@ -489,14 +489,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Floating Help Button */}
-      <button
-        onClick={() => scrollToSection('contact')}
-        className="fixed right-6 bottom-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 z-50 group"
-        aria-label="Get Help"
-      >
-        <MessageSquare className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-      </button>
+      
 
     </div>
   );

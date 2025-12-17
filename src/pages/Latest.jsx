@@ -454,22 +454,7 @@ const Latest = () => {
         </div>
       </section>
 
-      {/* Floating CTA Button */}
-      <button
-        onClick={() => scrollToSection('pricing')}
-        className={`fixed right-6 bottom-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 z-50 group ${isScrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        aria-label="View Pricing"
-      >
-        <DollarSignIcon className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-      </button>
-
-      {/* Scroll Progress Indicator */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-40">
-        <div 
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
-          style={{ width: `${(window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%` }}
-        />
-      </div>
+      
 
     </div>
   );

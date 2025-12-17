@@ -1,263 +1,36 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useAnimation, useInView } from 'framer-motion';
 import { 
   ArrowRight, CreditCard, Shield, TrendingUp, Clock, 
   Users, Building, Smartphone, Lock, Award, Globe, Zap,
   CheckCircle, ArrowUpRight, DollarSign, PieChart,
-  ChevronRight, ChevronLeft, Star, ExternalLink,
-  Mail, Phone, MessageSquare, Download, ShieldCheck,
-  BarChart3, CreditCard as Card, Wallet, Target,
-  Heart, ThumbsUp, Award as AwardIcon, Trophy,
-  Sparkles, CreditCard as CardIcon, BadgeCheck
+  ChevronRight, Sparkles, Target, ShieldCheck
 } from 'lucide-react';
 
 const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isHoveringCTA, setIsHoveringCTA] = useState(false);
-  const [activeAccount, setActiveAccount] = useState(null);
-  
-  // Refs for animations
+  const [animatedSections, setAnimatedSections] = useState({});
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Refs for scroll animations
   const heroRef = useRef(null);
   const featuresRef = useRef(null);
   const accountsRef = useRef(null);
   const statsRef = useRef(null);
   const testimonialsRef = useRef(null);
   const ctaRef = useRef(null);
-  
-  // Animation controls
-  const heroControls = useAnimation();
-  const featuresControls = useAnimation();
-  const accountsControls = useAnimation();
-  const statsControls = useAnimation();
-  const testimonialsControls = useAnimation();
-  const ctaControls = useAnimation();
-  
-  // InView detection
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.3 });
-  const isFeaturesInView = useInView(featuresRef, { once: true, amount: 0.2 });
-  const isAccountsInView = useInView(accountsRef, { once: true, amount: 0.2 });
-  const isStatsInView = useInView(statsRef, { once: true, amount: 0.3 });
-  const isTestimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.2 });
-  const isCTAInView = useInView(ctaRef, { once: true, amount: 0.3 });
+  const containerRef = useRef(null);
 
-  // ================== SMOOTH SCROLL SETUP ==================
-  useEffect(() => {
-    // Enhanced smooth scroll function
-    const smoothScrollTo = (targetElement, duration = 800) => {
-      const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-      const startPosition = window.pageYOffset;
-      const distance = targetPosition - startPosition - 80; // Adjust for header
-      let startTime = null;
-
-      const easeInOutCubic = (t) => {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      };
-
-      const animation = (currentTime) => {
-        if (startTime === null) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-        const easeProgress = easeInOutCubic(progress);
-        
-        window.scrollTo(0, startPosition + distance * easeProgress);
-        
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        }
-      };
-
-      requestAnimationFrame(animation);
-    };
-
-    // Handle all smooth scroll clicks
-    const handleSmoothScrollClick = (e) => {
-      // Check if click is on a button that should trigger smooth scroll
-      const button = e.target.closest('button');
-      const link = e.target.closest('a[href^="#"]');
-      
-      let targetId = null;
-      
-      // Check for onclick scrollIntoView
-      if (button && button.onclick && button.onclick.toString().includes('scrollIntoView')) {
-        const onclickText = button.onclick.toString();
-        const match = onclickText.match(/getElementById\('([^']+)'\)/);
-        if (match) {
-          targetId = match[1];
-        }
-      }
-      
-      // Check for anchor links
-      if (link) {
-        const href = link.getAttribute('href');
-        if (href && href.startsWith('#')) {
-          targetId = href.substring(1);
-        }
-      }
-
-      if (targetId) {
-        e.preventDefault();
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-          if ('scrollBehavior' in document.documentElement.style) {
-            // Use native smooth scroll if available
-            window.scrollTo({
-              top: targetElement.offsetTop - 80,
-              behavior: 'smooth'
-            });
-          } else {
-            // Use custom smooth scroll for older browsers
-            smoothScrollTo(targetElement);
-          }
-        }
-      }
-    };
-
-    // Enhanced scroll event handler for progress bar
-    const handleScrollWithProgress = () => {
-      setIsScrolled(window.scrollY > 50);
-      
-      // Update progress bar
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      
-      const progressBar = document.querySelector('.progress-bar');
-      if (progressBar) {
-        progressBar.style.width = scrolled + '%';
-      }
-    };
-
-    // Mobile-specific optimizations
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      // Disable momentum scrolling for better control
-      document.body.style.overscrollBehaviorY = 'contain';
-      
-      // Improve touch scrolling
-      document.documentElement.style.scrollBehavior = 'smooth';
-      document.body.style.scrollBehavior = 'smooth';
-      
-      // Prevent pull-to-refresh on iOS
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'auto';
-    }
-
-    // Add CSS for smooth scroll
-    const style = document.createElement('style');
-    style.textContent = `
-      /* Enable smooth scrolling */
-      html {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-      }
-      
-      /* Mobile optimizations */
-      @media (max-width: 768px) {
-        html {
-          scroll-behavior: smooth !important;
-        }
-        
-        body {
-          overscroll-behavior-y: contain;
-          -webkit-font-smoothing: antialiased;
-        }
-        
-        /* Improve scroll performance */
-        * {
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        button, a {
-          touch-action: manipulation;
-        }
-      }
-      
-      /* Prevent scroll chaining */
-      .overflow-x-hidden {
-        overflow-x: hidden;
-      }
-      
-      /* Smooth transitions */
-      .smooth-transition {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      
-      /* Progress bar animation */
-      .progress-bar {
-        transition: width 0.1s ease-out;
-      }
-      
-      /* Fix for iOS Safari */
-      @supports (-webkit-touch-callout: none) {
-        .min-h-screen {
-          min-height: -webkit-fill-available;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Add event listeners
-    document.addEventListener('click', handleSmoothScrollClick);
-    window.addEventListener('scroll', handleScrollWithProgress, { passive: true });
-
-    return () => {
-      document.removeEventListener('click', handleSmoothScrollClick);
-      window.removeEventListener('scroll', handleScrollWithProgress);
-      document.head.removeChild(style);
-      
-      // Cleanup styles
-      document.body.style.overscrollBehaviorY = '';
-      document.documentElement.style.scrollBehavior = '';
-      document.body.style.scrollBehavior = '';
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, []);
-
-  // ================== ORIGINAL CODE CONTINUES ==================
-  
-  // Handle scroll for animations (updated for mobile)
+  // Handle scroll for navbar
   useEffect(() => {
     const handleScroll = () => {
-      // Use requestAnimationFrame for smoother performance on mobile
-      requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 50);
-      });
+      setIsScrolled(window.scrollY > 50);
     };
-    
-    // Use passive listener for better performance
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Trigger animations when elements come into view
-  useEffect(() => {
-    if (isHeroInView) heroControls.start('visible');
-  }, [isHeroInView, heroControls]);
-
-  useEffect(() => {
-    if (isFeaturesInView) featuresControls.start('visible');
-  }, [isFeaturesInView, featuresControls]);
-
-  useEffect(() => {
-    if (isAccountsInView) accountsControls.start('visible');
-  }, [isAccountsInView, accountsControls]);
-
-  useEffect(() => {
-    if (isStatsInView) statsControls.start('visible');
-  }, [isStatsInView, statsControls]);
-
-  useEffect(() => {
-    if (isTestimonialsInView) testimonialsControls.start('visible');
-  }, [isTestimonialsInView, testimonialsControls]);
-
-  useEffect(() => {
-    if (isCTAInView) ctaControls.start('visible');
-  }, [isCTAInView, ctaControls]);
 
   // Update time
   useEffect(() => {
@@ -267,154 +40,118 @@ const Home = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Animation variants
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut"
+  // Scroll progress tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const windowHeight = window.innerHeight;
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const containerHeight = containerRef.current.offsetHeight;
+        const progress = Math.max(0, Math.min(1, (windowHeight - containerTop) / (windowHeight + containerHeight)));
+        setScrollProgress(progress);
       }
-    }
-  };
+    };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
-    }
-  };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const scaleIn = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: "backOut"
-      }
-    }
-  };
+  // Setup IntersectionObserver for animations
+  useEffect(() => {
+    const observers = [];
+    const sections = {};
 
-  const slideInFromLeft = {
-    hidden: { opacity: 0, x: -60 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut"
-      }
-    }
-  };
+    const createObserver = (ref, sectionName) => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              sections[sectionName] = true;
+              setAnimatedSections({...sections});
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '50px' }
+      );
 
-  const slideInFromRight = {
-    hidden: { opacity: 0, x: 60 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut"
+      if (ref.current) {
+        observer.observe(ref.current);
       }
-    }
-  };
 
-  const floatAnimation = {
-    animate: {
-      y: [0, -10, 0],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
+      observers.push(observer);
+      return observer;
+    };
 
-  const pulseAnimation = {
-    animate: {
-      scale: [1, 1.05, 1],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
+    createObserver(heroRef, 'hero');
+    createObserver(featuresRef, 'features');
+    createObserver(accountsRef, 'accounts');
+    createObserver(statsRef, 'stats');
+    createObserver(testimonialsRef, 'testimonials');
+    createObserver(ctaRef, 'cta');
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, []);
+
+  // Check if section should be animated
+  const shouldAnimate = (sectionName) => animatedSections[sectionName];
 
   // Features data
   const features = [
     {
-      icon: <ShieldCheck className="w-10 h-10" />,
+      icon: <Shield className="w-8 h-8" />,
       title: "Military-Grade Security",
       description: "256-bit encryption and biometric authentication",
       color: "from-blue-500 to-cyan-500",
-      buttonColor: "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+      direction: 'left'
     },
     {
-      icon: <Clock className="w-10 h-10" />,
+      icon: <Clock className="w-8 h-8" />,
       title: "24/7 Digital Banking",
       description: "Access your accounts anytime, anywhere",
       color: "from-emerald-500 to-green-500",
-      buttonColor: "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+      direction: 'right'
     },
     {
-      icon: <TrendingUp className="w-10 h-10" />,
+      icon: <TrendingUp className="w-8 h-8" />,
       title: "Smart Investments",
       description: "AI-powered investment recommendations",
       color: "from-purple-500 to-pink-500",
-      buttonColor: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+      direction: 'left'
     },
     {
-      icon: <Users className="w-10 h-10" />,
+      icon: <Users className="w-8 h-8" />,
       title: "Personal Banking",
       description: "Dedicated relationship managers",
       color: "from-amber-500 to-orange-500",
-      buttonColor: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+      direction: 'right'
     }
   ];
 
   // Account types
   const accountTypes = [
     {
-      id: 1,
       name: "Premium Savings",
       interest: "4.25% APY",
       minBalance: "$1,000",
       features: ["No monthly fees", "Free ATM withdrawals", "Mobile check deposit"],
-      icon: <Wallet className="w-8 h-8" />,
-      badge: "Most Popular",
-      color: "from-blue-500 to-cyan-500",
-      buttonStyle: "primary"
+      direction: 'left'
     },
     {
-      id: 2,
       name: "Smart Checking",
       interest: "2.1% APY",
       minBalance: "$500",
       features: ["Unlimited transactions", "Overdraft protection", "Cashback rewards"],
-      icon: <Card className="w-8 h-8" />,
-      badge: "Best Value",
-      color: "from-emerald-500 to-green-500",
-      buttonStyle: "secondary"
+      direction: 'top'
     },
     {
-      id: 3,
       name: "Investment Plus",
       interest: "Up to 8% ROI",
       minBalance: "$5,000",
       features: ["Portfolio management", "Tax optimization", "Risk analysis"],
-      icon: <BarChart3 className="w-8 h-8" />,
-      badge: "Premium",
-      color: "from-purple-500 to-pink-500",
-      buttonStyle: "accent"
+      direction: 'right'
     }
   ];
 
@@ -425,688 +162,693 @@ const Home = () => {
       role: "Small Business Owner",
       content: "TrustBank helped me secure a business loan within 48 hours. Their digital platform is incredibly user-friendly.",
       avatar: "SJ",
-      rating: 5
+      direction: 'left'
     },
     {
       name: "Michael Chen",
       role: "Tech Entrepreneur",
       content: "The investment advice I received has grown my portfolio by 35% in the last year. Exceptional service!",
       avatar: "MC",
-      rating: 5
+      direction: 'bottom'
     },
     {
       name: "Emily Rodriguez",
       role: "Freelance Designer",
       content: "Mobile banking has never been this seamless. I can manage all my finances with just a few taps.",
       avatar: "ER",
-      rating: 5
+      direction: 'right'
     }
   ];
 
-  // Stats with animations
+  // Stats
   const stats = [
-    { value: "2.5M+", label: "Happy Customers", icon: <Heart className="w-8 h-8" />, delay: 0 },
-    { value: "$425B", label: "Assets Managed", icon: <DollarSign className="w-8 h-8" />, delay: 100 },
-    { value: "185+", label: "Countries Served", icon: <Globe className="w-8 h-8" />, delay: 200 },
-    { value: "24/7", label: "Customer Support", icon: <Clock className="w-8 h-8" />, delay: 300 }
+    { value: "2.5M+", label: "Happy Customers", icon: <Users />, direction: 'left' },
+    { value: "$425B", label: "Assets Managed", icon: <DollarSign />, direction: 'top' },
+    { value: "185+", label: "Countries Served", icon: <Globe />, direction: 'bottom' },
+    { value: "24/7", label: "Customer Support", icon: <Clock />, direction: 'right' }
   ];
-
-  // Enhanced button styles
-  const buttonStyles = {
-    primary: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl",
-    secondary: "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl",
-    accent: "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl",
-    outline: "bg-white text-gray-800 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 shadow-sm hover:shadow-md",
-    ghost: "bg-transparent text-blue-600 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200"
-  };
-
-  // ================== SMOOTH SCROLL HELPER FUNCTION ==================
-  const scrollToElement = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    if ('scrollBehavior' in document.documentElement.style) {
-      window.scrollTo({
-        top: element.offsetTop - 80,
-        behavior: 'smooth'
-      });
-    } else {
-      // Fallback for older browsers
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 overflow-x-hidden smooth-transition">
-     
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100" ref={containerRef}>
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {/* Scroll progress bar */}
+        <div className="fixed top-0 left-0 right-0 h-1 z-50">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-300"
+            style={{ width: `${scrollProgress * 100}%` }}
+          ></div>
+        </div>
+
+        {/* Floating particles */}
+        {[...Array(20)].map((_, i) => {
+          const depth = Math.random();
+          const speed = 0.2 + depth * 1;
+          const size = 2 + depth * 6;
+          const isLeft = i % 2 === 0;
+          
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse-slow"
+              style={{
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                background: `radial-gradient(circle, ${
+                  ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i % 4]
+                }30, transparent 70%)`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${Math.random() * 10 + 10}s`,
+                opacity: 0.1,
+                transform: `translateY(${scrollProgress * speed * -40}px) translateX(${scrollProgress * (isLeft ? -30 : 30)}px)`,
+                transition: 'transform 0.1s linear'
+              }}
+            />
+          );
+        })}
+      </div>
+
       {/* Hero Section */}
-      <section ref={heroRef} className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <motion.div 
-          className="absolute top-20 right-20 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
-          animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.4, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div 
-          className="absolute bottom-20 left-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        />
+      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden" ref={heroRef}>
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50"></div>
+        <div 
+          className="absolute top-20 right-20 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
+          style={{
+            transform: `translate(${scrollProgress * 50}px, ${scrollProgress * -30}px)`
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-20 left-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
+          style={{
+            transform: `translate(${scrollProgress * -50}px, ${scrollProgress * 30}px)`
+          }}
+        ></div>
 
         <div className="max-w-7xl mx-auto relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <motion.div
-              initial="hidden"
-              animate={heroControls}
-              variants={slideInFromLeft}
-              custom={0}
-            >
-              <motion.button
-                onClick={() => scrollToElement('features')}
-                className="inline-flex items-center px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-600 font-medium mb-6 group hover:from-blue-200 hover:to-cyan-200 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Zap className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+            {/* Left Content - Slides from left */}
+            <div className={`transition-all duration-1000 ${
+              shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
+            }`}>
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium mb-6 animate-pulse">
+                <Zap className="w-4 h-4 mr-2" />
                 Next-Generation Digital Banking
-                <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+              </div>
               
-              <motion.h1 
-                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                Your Financial Future,
-                <motion.span 
-                  className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"
-                  animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  style={{ backgroundSize: '200% auto' }}
-                >
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                <span className={`inline-block transition-all duration-1000 delay-100 ${
+                  shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+                }`}>
+                  Your Financial Future,
+                </span>
+                <span className={`block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-1000 delay-300 ${
+                  shouldAnimate('hero') ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 -translate-x-20 scale-90'
+                }`}>
                   Secured & Simplified
-                </motion.span>
-              </motion.h1>
+                </span>
+              </h1>
               
-              <motion.p 
-                className="text-lg sm:text-xl text-gray-600 mt-6 mb-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
+              <p className={`text-lg sm:text-xl text-gray-600 mt-6 mb-8 transition-all duration-1000 delay-500 ${
+                shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+              }`}>
                 Experience banking reimagined. From smart savings to intelligent investments, 
                 we provide everything you need to grow your wealth securely.
-              </motion.p>
+              </p>
 
-              {/* Enhanced Button Group */}
-              <motion.div 
-                className="flex flex-col sm:flex-row gap-4 mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link 
-                    to="/login" 
-                    className={`px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center group ${buttonStyles.primary}`}
-                    onMouseEnter={() => setIsHoveringCTA(true)}
-                    onMouseLeave={() => setIsHoveringCTA(false)}
-                  >
-                    <div className="flex items-center">
-                      <Sparkles className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-                      Start Banking Free
-                      <motion.div
-                        animate={{ x: isHoveringCTA ? 5 : 0 }}
-                        transition={{ type: "spring", stiffness: 500 }}
-                      >
-                        <ArrowRight className="ml-3 w-5 h-5" />
-                      </motion.div>
-                    </div>
-                  </Link>
-                </motion.div>
-                
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link 
-                    to="/404" 
-                    className={`px-10 py-4 rounded-xl font-semibold text-lg transition-all duration-300 flex items-center justify-center group ${buttonStyles.outline}`}
-                  >
-                    <Smartphone className="mr-3 w-5 h-5 group-hover:scale-110 transition-transform" />
-                    Download App
-                    <Download className="ml-3 w-4 h-4 opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                  </Link>
-                </motion.div>
-              </motion.div>
+              <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-700 ${
+                shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+              }`}>
+                <Link to="/login" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center group">
+                  Start Banking Free
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link to="/404" className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg flex items-center justify-center">
+                  <Smartphone className="mr-2 w-5 h-5" />
+                  Download App
+                </Link>
+              </div>
 
               {/* Quick Stats */}
-              <motion.div 
-                className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mt-12 pt-8 border-t border-gray-200"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-              >
-                {[
-                  { value: "4.25%", label: "High-Yield Savings", icon: <BadgeCheck className="w-5 h-5" />, color: "blue" },
-                  { value: "$0", label: "Monthly Fees", icon: <DollarSign className="w-5 h-5" />, color: "emerald" },
-                  { value: "2 Min", label: "Account Opening", icon: <Clock className="w-5 h-5" />, color: "purple" }
-                ].map((stat, index) => (
-                  <motion.div 
-                    key={index}
-                    className="text-center group hover:scale-105 transition-transform duration-300 p-3 rounded-lg hover:bg-blue-50 cursor-pointer"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <div className={`text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-${stat.color}-600 flex items-center justify-center`}>
-                      {stat.icon}
-                      <motion.span 
-                        className="ml-2"
-                        initial={{ scale: 1 }}
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        {stat.value}
-                      </motion.span>
-                    </div>
-                    <div className="text-sm text-gray-600 mt-2">{stat.label}</div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
+              <div className={`grid grid-cols-2 sm:grid-cols-3 gap-4 mt-12 pt-8 border-t border-gray-200 transition-all duration-1000 delay-900 ${
+                shouldAnimate('hero') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}>
+                <div className="transform hover:scale-105 transition-transform duration-300">
+                  <div className="text-2xl font-bold text-gray-900">4.25%</div>
+                  <div className="text-sm text-gray-600">High-Yield Savings</div>
+                </div>
+                <div className="transform hover:scale-105 transition-transform duration-300">
+                  <div className="text-2xl font-bold text-gray-900">$0</div>
+                  <div className="text-sm text-gray-600">Monthly Fees</div>
+                </div>
+                <div className="transform hover:scale-105 transition-transform duration-300">
+                  <div className="text-2xl font-bold text-gray-900">2 Min</div>
+                  <div className="text-sm text-gray-600">Account Opening</div>
+                </div>
+              </div>
+            </div>
 
-            {/* Right - Hero Image/Graphic */}
-            <motion.div 
-              className="relative group"
-              initial="hidden"
-              animate={heroControls}
-              variants={slideInFromRight}
-              custom={0}
-            >
-              <motion.div 
-                className="relative bg-white rounded-2xl shadow-2xl p-6"
-                whileHover={{ rotate: 0 }}
-                initial={{ rotate: 3 }}
-                animate={{ rotate: [3, 0, 3] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <motion.div 
-                  className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-xl"
-                  animate={floatAnimation}
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <AwardIcon className="w-12 h-12 text-white" />
-                </motion.div>
+            {/* Right - Hero Image/Graphic - Slides from right */}
+            <div className={`relative transition-all duration-1000 delay-300 ${
+              shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
+            }`}>
+              <div className="relative bg-white rounded-2xl shadow-2xl p-6 transform rotate-3 hover:rotate-0 transition-all duration-500 group">
+                {/* Animated corner badges */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-xl animate-bounce-slow group-hover:scale-110 transition-transform duration-300">
+                  <Award className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center shadow-xl animate-pulse">
+                  <ShieldCheck className="w-10 h-10 text-white" />
+                </div>
                 
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6">
-                  <motion.div 
-                    className="flex items-center justify-between mb-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
+                  <div className="flex items-center justify-between mb-6">
                     <div>
                       <div className="text-sm text-gray-600">Total Balance</div>
                       <div className="text-3xl font-bold text-gray-900">$42,580.75</div>
                     </div>
-                    <motion.div 
-                      className="text-green-500 font-semibold flex items-center"
-                      animate={pulseAnimation}
-                    >
+                    <div className="text-green-500 font-semibold flex items-center animate-pulse">
                       <ArrowUpRight className="w-5 h-5 mr-1" />
                       +12.5%
-                    </motion.div>
-                  </motion.div>
-                  
-                  <div className="space-y-4">
-                    {[
-                      { icon: <CreditCard className="w-6 h-6" />, name: "Checking Account", number: "4832", amount: "$18,250.00", color: "blue" },
-                      { icon: <PieChart className="w-6 h-6" />, name: "Savings Account", number: "2198", amount: "$24,330.75", color: "emerald" }
-                    ].map((account, index) => (
-                      <motion.div 
-                        key={index}
-                        className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1 }}
-                        whileHover={{ x: 5 }}
-                      >
-                        <div className="flex items-center">
-                          <div className={`w-12 h-12 rounded-lg bg-${account.color}-100 flex items-center justify-center mr-4 group-hover:bg-${account.color}-200 transition-colors`}>
-                            {account.icon}
-                          </div>
-                          <div>
-                            <div className="font-medium">{account.name}</div>
-                            <div className="text-sm text-gray-500">**** {account.number}</div>
-                          </div>
-                        </div>
-                        <div className="font-bold">{account.amount}</div>
-                      </motion.div>
-                    ))}
+                    </div>
                   </div>
                   
-                  <motion.div 
-                    className="mt-6 pt-6 border-t border-gray-200"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <motion.button 
-                      className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-medium hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <CardIcon className="w-5 h-5 mr-2" />
-                      View All Accounts
-                      <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </motion.button>
-                  </motion.div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm transform hover:-translate-y-1 transition-all duration-300">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                          <CreditCard className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Checking Account</div>
+                          <div className="text-sm text-gray-500">**** 4832</div>
+                        </div>
+                      </div>
+                      <div className="font-bold">$18,250.00</div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm transform hover:-translate-y-1 transition-all duration-300">
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                          <PieChart className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Savings Account</div>
+                          <div className="text-sm text-gray-500">**** 2198</div>
+                        </div>
+                      </div>
+                      <div className="font-bold">$24,330.75</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Recent Transaction</span>
+                      <span className="font-medium">Salary Deposit</span>
+                      <span className="text-green-500 font-bold animate-pulse">+$5,250.00</span>
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-     {/* Features Section */}
-<section id="features" ref={featuresRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-  <div className="max-w-7xl mx-auto">
-    <motion.div 
-      className="text-center mb-16"
-      initial={{ opacity: 0, y: 20 }}
-      animate={featuresControls}
-      variants={fadeInUp}
-    >
-      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-        Why Millions Trust Us
-      </h2>
-      <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-        Banking should be simple, secure, and smart. Here's how we're different.
-      </p>
-    </motion.div>
-
-    <motion.div 
-      className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
-      initial="hidden"
-      animate={featuresControls}
-      variants={staggerContainer}
-    >
-      {features.map((feature, index) => (
-        <motion.div 
-          key={index}
-          className="group relative bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300"
-          variants={fadeInUp}
-          whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
-        >
-          <motion.div 
-            className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-6 shadow-lg`}
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 400 }}
-          >
-            <div className="text-white">
-              {feature.icon}
-            </div>
-          </motion.div>
-          <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-          <p className="text-gray-600 mb-6">{feature.description}</p>
-          <div className="mt-auto">
-            <Link to="/404">
-              <motion.button 
-                className={`w-full px-5 py-3 rounded-xl font-medium text-sm transition-all duration-300 flex items-center justify-center ${feature.buttonColor} text-white shadow-md hover:shadow-lg group`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Learn More
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Link>
+      {/* Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white" ref={featuresRef}>
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center mb-16 transition-all duration-1000 ${
+            shouldAnimate('features') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+          }`}>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Why Millions Trust Us
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Banking should be simple, secure, and smart. Here's how we're different.
+            </p>
           </div>
-        </motion.div>
-      ))}
-    </motion.div>
-  </div>
-</section>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className={`group relative bg-white rounded-2xl p-6 border border-gray-200 hover:border-transparent hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 ${
+                  shouldAnimate('features') ? 
+                    (feature.direction === 'left' ? 'animate-slide-in-left' : 'animate-slide-in-right') : 
+                    'opacity-0'
+                }`}
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
+                {/* Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                
+                <div className={`w-16 h-16 rounded-xl bg-gradient-to-r ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform relative z-10`}>
+                  <div className="text-white animate-pulse-slow">
+                    {feature.icon}
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 relative z-10">{feature.title}</h3>
+                <p className="text-gray-600 relative z-10">{feature.description}</p>
+                <div className="mt-6 pt-6 border-t border-gray-100 relative z-10">
+                  <Link to="/404" className="text-blue-600 font-medium flex items-center group-hover:text-blue-700">
+                    Learn more
+                    <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Account Types Section */}
-      <section ref={accountsRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50" ref={accountsRef}>
         <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={accountsControls}
-            variants={fadeInUp}
-          >
+          <div className={`text-center mb-16 transition-all duration-1000 ${
+            shouldAnimate('accounts') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+          }`}>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Find Your Perfect Account
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Choose from our range of accounts designed for every financial goal.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="grid md:grid-cols-3 gap-6"
-            initial="hidden"
-            animate={accountsControls}
-            variants={staggerContainer}
-          >
+          <div className="grid md:grid-cols-3 gap-8">
             {accountTypes.map((account, index) => (
-              <motion.div 
-                key={account.id}
-                className="bg-white rounded-2xl shadow-xl overflow-hidden transform border border-gray-200"
-                variants={scaleIn}
-                whileHover={{ 
-                  y: -8,
-                  scale: 1.02,
-                  transition: { type: "spring", stiffness: 300 }
-                }}
-                onMouseEnter={() => setActiveAccount(account.id)}
-                onMouseLeave={() => setActiveAccount(null)}
+              <div 
+                key={index}
+                className={`bg-white rounded-2xl shadow-xl overflow-hidden transform hover:-translate-y-2 transition-all duration-300 ${
+                  shouldAnimate('accounts') ? 
+                    (account.direction === 'left' ? 'animate-slide-in-left' : 
+                     account.direction === 'right' ? 'animate-slide-in-right' : 
+                     'animate-slide-in-top') : 
+                    'opacity-0'
+                }`}
+                style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className={`h-2 bg-gradient-to-r ${account.color}`}></div>
-                <div className="p-6 sm:p-8">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 gap-4">
-                    <div className="flex items-center gap-4">
-                      <motion.div 
-                        className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-100 to-blue-200 flex items-center justify-center"
-                        animate={{ rotate: activeAccount === account.id ? [0, 10, -10, 0] : 0 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <div className="text-blue-600">
-                          {account.icon}
-                        </div>
-                      </motion.div>
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{account.name}</h3>
-                        <div className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{account.interest}</div>
-                        <div className="text-gray-600 text-sm mt-1">Annual Percentage Yield</div>
-                      </div>
+                {/* Animated top bar */}
+                <div className={`h-2 ${
+                  index === 0 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 
+                  index === 1 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 
+                  'bg-gradient-to-r from-purple-500 to-pink-500'
+                } relative overflow-hidden`}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000"></div>
+                </div>
+                
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">{account.name}</h3>
+                      <div className="text-3xl font-bold text-gray-900 mt-2">{account.interest}</div>
+                      <div className="text-gray-600 mt-1">Annual Percentage Yield</div>
                     </div>
-                    {account.badge && (
-                      <motion.span 
-                        className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-600 rounded-full text-xs font-medium self-start"
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        {account.badge}
-                      </motion.span>
+                    {index === 0 && (
+                      <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium animate-pulse">
+                        Most Popular
+                      </span>
                     )}
                   </div>
                   
-                  <div className="mb-6">
+                  <div className="mb-8">
                     <div className="text-sm text-gray-600 mb-2">Minimum Balance</div>
-                    <div className="text-lg sm:text-xl font-bold text-gray-900">{account.minBalance}</div>
+                    <div className="text-xl font-bold text-gray-900">{account.minBalance}</div>
                   </div>
 
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-4 mb-8">
                     {account.features.map((feature, i) => (
-                      <motion.div 
+                      <div 
                         key={i} 
-                        className="flex items-center group"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
+                        className="flex items-center transform hover:translate-x-2 transition-transform duration-300"
+                        style={{ transitionDelay: `${i * 100}ms` }}
                       >
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 group-hover:scale-110 transition-transform flex-shrink-0" />
-                        <span className="text-gray-700 text-sm sm:text-base">{feature}</span>
-                      </motion.div>
+                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 animate-bounce-slow" />
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
                     ))}
                   </div>
 
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Link 
-                      to="/login" 
-                      className={`w-full py-3.5 sm:py-4 px-6 rounded-xl font-semibold text-sm sm:text-base transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center group ${
-                        buttonStyles[account.buttonStyle]
-                      }`}
-                    >
-                      Open Account
-                      <motion.div
-                        animate={{ x: activeAccount === account.id ? 8 : 0 }}
-                        transition={{ type: "spring", stiffness: 500 }}
-                      >
-                        <ArrowRight className="ml-3 w-4 h-4 sm:w-5 sm:h-5" />
-                      </motion.div>
-                    </Link>
-                  </motion.div>
+                  <Link 
+                    to="/login" 
+                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center group"
+                  >
+                    Open Account
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section ref={statsRef} className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-indigo-700" ref={statsRef}>
         <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8"
-            initial="hidden"
-            animate={statsControls}
-            variants={staggerContainer}
-          >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <motion.div 
+              <div 
                 key={index} 
-                className="text-center text-white"
-                variants={fadeInUp}
-                custom={index}
-                whileHover={{ scale: 1.05 }}
+                className={`text-center text-white ${
+                  shouldAnimate('stats') ? 
+                    (stat.direction === 'left' ? 'animate-slide-in-left' : 
+                     stat.direction === 'right' ? 'animate-slide-in-right' : 
+                     stat.direction === 'top' ? 'animate-slide-in-top' : 
+                     'animate-slide-in-bottom') : 
+                    'opacity-0'
+                }`}
+                style={{ animationDelay: `${index * 150}ms` }}
               >
-                <motion.div 
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 p-4"
-                  whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.2)" }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                  >
-                    <div className="text-white">
-                      {stat.icon}
-                    </div>
-                  </motion.div>
-                </motion.div>
-                <motion.div 
-                  className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, delay: index * 0.1 }}
-                >
-                  {stat.value}
-                </motion.div>
-                <div className="text-blue-100 text-sm sm:text-base">{stat.label}</div>
-              </motion.div>
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform duration-300 group">
+                  <div className="text-white group-hover:scale-110 transition-transform">
+                    {stat.icon}
+                  </div>
+                </div>
+                <div className="text-4xl font-bold mb-2 animate-pulse">{stat.value}</div>
+                <div className="text-blue-100">{stat.label}</div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section ref={testimonialsRef} className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white" ref={testimonialsRef}>
         <div className="max-w-7xl mx-auto">
-          <motion.div 
-            className="text-center mb-12 sm:mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={testimonialsControls}
-            variants={fadeInUp}
-          >
+          <div className={`text-center mb-16 transition-all duration-1000 ${
+            shouldAnimate('testimonials') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+          }`}>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               What Our Customers Say
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Join thousands of satisfied customers who trust us with their finances.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className="grid md:grid-cols-3 gap-6"
-            initial="hidden"
-            animate={testimonialsControls}
-            variants={staggerContainer}
-          >
+          <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <motion.div 
+              <div 
                 key={index}
-                className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-xl transition-all duration-300"
-                variants={scaleIn}
-                whileHover={{ 
-                  y: -8,
-                  transition: { type: "spring", stiffness: 300 }
-                }}
+                className={`bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+                  shouldAnimate('testimonials') ? 
+                    (testimonial.direction === 'left' ? 'animate-slide-in-left' : 
+                     testimonial.direction === 'right' ? 'animate-slide-in-right' : 
+                     'animate-slide-in-bottom') : 
+                    'opacity-0'
+                }`}
+                style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className="flex items-center mb-6">
-                  <motion.div 
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-lg sm:text-xl mr-4"
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    {testimonial.avatar}
-                  </motion.div>
+                {/* Avatar with shine effect */}
+                <div className="flex items-center mb-6 relative">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold mr-4 z-10 relative">
+                      {testimonial.avatar}
+                    </div>
+                    <div className="absolute inset-0 w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 opacity-50 animate-ping"></div>
+                  </div>
                   <div>
-                    <div className="font-bold text-gray-900 text-base sm:text-lg">{testimonial.name}</div>
-                    <div className="text-gray-600 text-sm">{testimonial.role}</div>
+                    <div className="font-bold text-gray-900">{testimonial.name}</div>
+                    <div className="text-gray-600">{testimonial.role}</div>
                   </div>
                 </div>
-                <p className="text-gray-700 italic mb-6 text-sm sm:text-base">"{testimonial.content}"</p>
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <motion.div 
-                      key={i}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
+                <p className="text-gray-700 italic">"{testimonial.content}"</p>
+                <div className="flex mt-6">
+                  {[...Array(5)].map((_, i) => (
+                    <svg 
+                      key={i} 
+                      className="w-5 h-5 text-yellow-400 fill-current transform hover:scale-125 transition-transform duration-300"
+                      style={{ transitionDelay: `${i * 100}ms` }}
+                      viewBox="0 0 20 20"
                     >
-                      <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current mr-1" />
-                    </motion.div>
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
                   ))}
                 </div>
-                <motion.button 
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${buttonStyles.ghost} w-full text-center`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Read Full Story
-                </motion.button>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section ref={ctaRef} className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-indigo-50" ref={ctaRef}>
         <div className="max-w-4xl mx-auto">
-          <motion.div 
-            className="bg-white rounded-2xl p-8 sm:p-12 shadow-2xl"
-            initial={{ opacity: 0, y: 40 }}
-            animate={ctaControls}
-            variants={fadeInUp}
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <motion.div 
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center mx-auto mb-6"
-              animate={floatAnimation}
-            >
-              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            </motion.div>
-            <motion.h2 
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              Ready to Transform Your Banking Experience?
-            </motion.h2>
-            <motion.p 
-              className="text-gray-600 mb-8 text-center max-w-2xl mx-auto text-base sm:text-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              Join the future of banking today. Open your account in minutes and start enjoying premium banking features.
-            </motion.p>
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div className={`bg-white rounded-2xl p-8 md:p-12 shadow-2xl transform hover:scale-[1.02] transition-all duration-500 ${
+            shouldAnimate('cta') ? 'animate-pop' : 'opacity-0 scale-90'
+          }`}>
+            {/* Floating particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-1 h-1 bg-blue-400 rounded-full animate-float"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animationDelay: `${i * 0.5}s`,
+                    animationDuration: `${Math.random() * 10 + 5}s`
+                  }}
+                ></div>
+              ))}
+            </div>
+
+            <div className="relative z-10 text-center">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-600 font-medium mb-6 animate-pulse">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Limited Time Offer
+              </div>
+              
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+                Ready to Transform Your Banking Experience?
+              </h2>
+              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Join the future of banking today. Open your account in minutes and start enjoying premium banking features.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link 
                   to="/login" 
-                  className="px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-base sm:text-lg shadow-xl hover:shadow-2xl flex items-center justify-center group"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center group"
                 >
-                  <ShieldCheck className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
+                  <Target className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
                   Open Your Free Account
-                  <ExternalLink className="ml-3 w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
                 </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link 
                   to="/contact" 
-                  className="px-8 sm:px-10 py-3.5 sm:py-4 bg-white text-gray-800 rounded-xl font-semibold text-base sm:text-lg border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 hover:shadow-lg flex items-center justify-center group"
+                  className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg flex items-center justify-center group"
                 >
-                  <Phone className="mr-3 w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Clock className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
                   Schedule a Call
-                  <MessageSquare className="ml-3 w-4 h-4 opacity-0 group-hover:opacity-100 transition-all duration-300" />
                 </Link>
-              </motion.div>
-            </motion.div>
-            <motion.div 
-              className="mt-6 sm:mt-8 text-xs sm:text-sm text-gray-500 flex items-center justify-center gap-2 flex-wrap"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <ShieldCheck className="w-4 h-4" />
-              No hidden fees • No minimum balance • FDIC insured up to $250,000
-            </motion.div>
-          </motion.div>
+              </div>
+              <div className="mt-8 text-sm text-gray-500 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <span className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                  No hidden fees
+                </span>
+                <span className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                  No minimum balance
+                </span>
+                <span className="flex items-center">
+                  <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
+                  FDIC insured up to $250,000
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Floating Help Button */}
-      <motion.button
-        onClick={() => scrollToElement('features')}
-        className="fixed right-6 bottom-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-3xl z-50"
-        aria-label="Get Help"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1, type: "spring", stiffness: 200 }}
-        whileHover={{ scale: 1.1, rotate: 10 }}
-        whileTap={{ scale: 0.9 }}
-      >
-        <MessageSquare className="w-6 h-6" />
-      </motion.button>
-
-      {/* Scroll Progress Indicator */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-40 progress-container"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div 
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 progress-bar"
-          style={{ width: '0%' }}
-        />
-      </motion.div>
-
-      {/* Decorative floating elements */}
-      <motion.div 
-        className="fixed top-1/4 left-5 w-4 h-4 bg-blue-400 rounded-full opacity-20"
-        animate={{ y: [0, -20, 0] }}
-        transition={{ duration: 3, repeat: Infinity }}
-      />
-      <motion.div 
-        className="fixed bottom-1/4 right-10 w-3 h-3 bg-indigo-400 rounded-full opacity-20"
-        animate={{ y: [0, -15, 0] }}
-        transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-      />
-      <motion.div 
-        className="fixed top-1/3 right-20 w-2 h-2 bg-cyan-400 rounded-full opacity-20"
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-      />
-
+      {/* Global CSS Animations */}
+      <style jsx global>{`
+        @keyframes slideInLeft {
+          0% {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.95);
+          }
+          50% {
+            transform: translateX(10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInRight {
+          0% {
+            opacity: 0;
+            transform: translateX(50px) scale(0.95);
+          }
+          50% {
+            transform: translateX(-10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInTop {
+          0% {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+          }
+          60% {
+            transform: translateY(10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        @keyframes slideInBottom {
+          0% {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          60% {
+            transform: translateY(-10px) scale(1.02);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        @keyframes pop {
+          0% {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) translateX(0px);
+          }
+          33% {
+            transform: translateY(-10px) translateX(10px);
+          }
+          66% {
+            transform: translateY(5px) translateX(-10px);
+          }
+        }
+        
+        @keyframes bounce-slow {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: scale(1.05);
+          }
+        }
+        
+        .animate-slide-in-left {
+          animation: slideInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-right {
+          animation: slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-top {
+          animation: slideInTop 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-slide-in-bottom {
+          animation: slideInBottom 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .animate-pop {
+          animation: pop 0.6s ease-out forwards;
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-bounce-slow {
+          animation: bounce-slow 3s ease-in-out infinite;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 2s ease-in-out infinite;
+        }
+        
+        /* Smooth transitions for all elements */
+        * {
+          transition-property: transform, opacity, background-color, border-color;
+          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+          transition-duration: 300ms;
+        }
+        
+        /* Enhanced hover effects */
+        .hover-lift {
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Gradient text animation */
+        @keyframes gradient {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+        
+        /* Shimmer effect */
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        
+        .shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,17 +1,18 @@
-import Footer from "./components/Footer";
+import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Scrooltop from "./components/Scrooltop";
-import './App.css';
+import Footer from "./components/Footer";
 
-function App({ element }) {
+export default function App({ element }) {
+
+
+  const { pathname } = useLocation();
+  const hideFooter = pathname === "/login";
+const hideNavbar = pathname === "/login";
   return (
     <>
-      <Scrooltop />
-      <Navbar />
+     {!hideNavbar && <Navbar />}
       {element}
-      <Footer />
+      {!hideFooter && <Footer />}
     </>
   );
 }
-
-export default App;

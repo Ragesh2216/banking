@@ -284,7 +284,7 @@ const Home = () => {
           >
             <span className="flex items-center">
               Start Banking Free
-              <ArrowRight className="ml-3 w-5 h-5 " />
+              <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
             </span>
           </Link>
         </div>

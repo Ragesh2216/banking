@@ -311,16 +311,7 @@ const Login = () => {
 
                   {/* Remember Me & Forgot Password */}
                   <div className="flex justify-between items-center text-xs sm:text-sm">
-                    <label className="flex items-center text-white/70 cursor-pointer hover:text-white transition-colors duration-200">
-                      <input 
-                        type="checkbox" 
-                        name="loginRemember"
-                        checked={formData.loginRemember}
-                        onChange={handleInputChange}
-                        className={`mr-2 rounded bg-white/10 border-white/20 text-blue-500 focus:ring-blue-400 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`}
-                      />
-                      Remember ID
-                    </label>
+                    
                     <button
                       type="button"
                       onClick={() => navigate('/404')}

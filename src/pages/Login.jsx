@@ -229,7 +229,7 @@ const Login = () => {
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="fixed top-20 left-4 z-50 w-10 h-10 bg-blue-950/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-blue-700 text-lg hover:bg-blue-800 active:bg-blue-900 transition-colors duration-200 shadow-lg"
+          className="fixed top-5 left-4 z-50 w-10 h-10 bg-blue-950/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-blue-700 text-lg hover:bg-blue-800 active:bg-blue-900 transition-colors duration-200 shadow-lg"
           aria-label="Go back"
         >
           ← 
@@ -379,9 +379,7 @@ const Login = () => {
               <div className="w-full max-w-xs animate-fadeInUp">
                 {/* Account Opening Header */}
                 <div className="text-center mt-16  mb-6 sm:mb-8">
-                  <div className={`${isMobile ? 'w-14 h-14' : 'w-16 h-16'} secure-gradient rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-                    
-                  </div>
+                  
                   <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-emerald-200 bg-clip-text text-transparent mb-2">
                     Open Account
                   </h1>

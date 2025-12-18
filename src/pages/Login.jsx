@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function BankingAuth() {
+export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isVerySmall, setIsVerySmall] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,12 +18,12 @@ export default function BankingAuth() {
     agreeToTerms: false,
     userId: ""
   });
+
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showAllErrors, setShowAllErrors] = useState(false);
-  
-  // Password rules
+
   const [passwordRules, setPasswordRules] = useState({
     length: false,
     upper: false,
@@ -30,60 +31,22 @@ export default function BankingAuth() {
     number: false,
     special: false
   });
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     const checkScreenSize = () => {
       const width = window.innerWidth;
       setIsMobile(width < 768);
       setIsVerySmall(width < 375);
     };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
-    if (name === "phone") {
-      // Allow only numbers, max 10 digits
-      if (/^\d{0,10}$/.test(value)) {
-        setFormData(prev => ({ ...prev, [name]: value }));
-      }
-    } else if (name === "password") {
-      setFormData(prev => ({ ...prev, [name]: value }));
-      validatePasswordRules(value);
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-    }
-    
-    // Clear validation error for this field when user starts typing
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-    
-    // Special case for confirmPassword
-    if (name === 'confirmPassword' || name === 'password') {
-      if (validationErrors.confirmPassword) {
-        setValidationErrors(prev => ({
-          ...prev,
-          confirmPassword: ''
-        }));
-      }
-    }
-  };
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   const validatePasswordRules = (password) => {
     const rules = {
@@ -91,98 +54,134 @@ export default function BankingAuth() {
       upper: /[A-Z]/.test(password),
       lower: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
     setPasswordRules(rules);
     return rules;
   };
 
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (name === "phone") {
+      if (/^\d{0,10}$/.test(value)) {
+        setFormData((p) => ({ ...p, phone: value }));
+      }
+    } else if (name === "password") {
+      setFormData((p) => ({ ...p, password: value }));
+      validatePasswordRules(value);
+    } else {
+      setFormData((p) => ({
+        ...p,
+        [name]: type === "checkbox" ? checked : value
+      }));
+    }
+
+    if (validationErrors[name]) {
+      setValidationErrors((p) => ({ ...p, [name]: "" }));
+    }
+  };
+
   const validateForm = () => {
     const errors = {};
-    
+
     if (isLogin) {
-      // Login validation
       if (!formData.userId.trim()) {
-        errors.userId = "User ID / Customer ID is required";
+        errors.userId = "User ID is required";
       }
-      
       if (!formData.password) {
         errors.password = "Password is required";
       } else if (formData.password.length < 8) {
         errors.password = "Password must be at least 8 characters";
       }
     } else {
-      // Signup validation
-      if (!formData.name.trim()) {
-        errors.name = "Legal name is required";
-      }
+      if (!formData.name.trim()) errors.name = "Name is required";
       
       if (!formData.email.trim()) {
-        errors.email = "Email address is required";
+        errors.email = "Email is required";
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = "Please enter a valid email address";
+        errors.email = "Invalid email format";
       }
       
       if (!formData.phone.trim()) {
-        errors.phone = "Mobile number is required";
+        errors.phone = "Phone number is required";
       } else if (formData.phone.length !== 10) {
-        errors.phone = "Mobile number must be 10 digits";
+        errors.phone = "Phone must be 10 digits";
       }
       
       if (!formData.password) {
         errors.password = "Password is required";
       } else if (!Object.values(passwordRules).every(Boolean)) {
-        errors.password = "Password doesn't meet all security requirements";
+        errors.password = "Password doesn't meet all requirements";
       }
       
       if (!formData.confirmPassword) {
         errors.confirmPassword = "Please confirm your password";
       } else if (formData.password !== formData.confirmPassword) {
-        errors.confirmPassword = "Passwords don't match";
+        errors.confirmPassword = "Passwords do not match";
       }
       
       if (!formData.agreeToTerms) {
-        errors.agreeToTerms = "You must agree to the terms and conditions";
+        errors.agreeToTerms = "You must accept the terms and conditions";
       }
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const isFormValid = () => {
     if (isLogin) {
-      return formData.userId.trim() && formData.password && !validationErrors.userId && !validationErrors.password;
+      return formData.userId.trim() && 
+             formData.password && 
+             formData.password.length >= 8 &&
+             !validationErrors.userId && 
+             !validationErrors.password;
     } else {
-      const isPasswordValid = Object.values(passwordRules).every(Boolean);
+      const allPasswordRulesMet = Object.values(passwordRules).every(Boolean);
       return (
         formData.name.trim() &&
         formData.email.trim() &&
+        /\S+@\S+\.\S+/.test(formData.email) &&
         formData.phone.trim() &&
         formData.phone.length === 10 &&
         formData.password &&
         formData.confirmPassword &&
         formData.password === formData.confirmPassword &&
         formData.agreeToTerms &&
-        isPasswordValid &&
-        !validationErrors.name &&
-        !validationErrors.email &&
-        !validationErrors.phone &&
-        !validationErrors.password &&
-        !validationErrors.confirmPassword &&
-        !validationErrors.agreeToTerms
+        allPasswordRulesMet
       );
     }
   };
 
-  const handleSubmit = async (e) => {
+  const hasEmptyRequiredFields = () => {
+    if (isLogin) {
+      return !formData.userId.trim() || !formData.password;
+    } else {
+      return !formData.name.trim() || 
+             !formData.email.trim() || 
+             !formData.phone.trim() || 
+             !formData.password || 
+             !formData.confirmPassword || 
+             !formData.agreeToTerms;
+    }
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
-    setShowAllErrors(true); // Show all errors when submit is clicked
-    
-    const isValid = validateForm();
-    
-    if (!isValid) {
+    setShowAllErrors(true);
+
+    if (!validateForm()) {
+      // Show alert for empty required fields
+      if (hasEmptyRequiredFields()) {
+        alert(`Please fill in all required fields marked with *\n\n${
+          isLogin 
+            ? '• User ID / Customer ID\n• Password'
+            : '• Legal Name\n• Email Address\n• Mobile Number\n• Password\n• Confirm Password\n• Terms Agreement'
+        }`);
+      }
+      
       // Scroll to first error
       const firstError = Object.keys(validationErrors)[0];
       if (firstError) {
@@ -194,18 +193,17 @@ export default function BankingAuth() {
       }
       return;
     }
-    
+
     setIsLoading(true);
-    
-    // Simulate API call
+
     setTimeout(() => {
       setIsLoading(false);
-      if (isLogin) {
-        alert(`Secure Authentication Initiated for User ID: ${formData.userId}`);
-      } else {
-        alert(`Registration Successful!\nWelcome to SecureBank, ${formData.name}.`);
-      }
-      navigate('/404');
+      alert(
+        isLogin
+          ? `Secure Authentication Initiated for ${formData.userId}`
+          : `Welcome to SecureBank, ${formData.name}!`
+      );
+      navigate("/404");
     }, 2000);
   };
 
@@ -213,6 +211,16 @@ export default function BankingAuth() {
     setIsVisible(false);
     setTimeout(() => {
       setIsLogin(!isLogin);
+      setValidationErrors({});
+      setIsSubmitted(false);
+      setShowAllErrors(false);
+      setPasswordRules({
+        length: false,
+        upper: false,
+        lower: false,
+        number: false,
+        special: false
+      });
       setFormData({
         name: "",
         email: "",
@@ -224,37 +232,15 @@ export default function BankingAuth() {
         agreeToTerms: false,
         userId: ""
       });
-      setPasswordRules({
-        length: false,
-        upper: false,
-        lower: false,
-        number: false,
-        special: false
-      });
-      setValidationErrors({});
-      setIsSubmitted(false);
-      setShowAllErrors(false);
       setIsVisible(true);
     }, 300);
   };
 
-  // Helper function to determine if error should be shown
   const shouldShowError = (fieldName) => {
-    // Always show errors for signup, show after submission for login
     if (isLogin) {
       return isSubmitted || validationErrors[fieldName];
     } else {
       return showAllErrors || validationErrors[fieldName];
-    }
-  };
-
-  // Check if any required field is empty
-  const hasEmptyRequiredFields = () => {
-    if (isLogin) {
-      return !formData.userId.trim() || !formData.password;
-    } else {
-      return !formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || 
-             !formData.password || !formData.confirmPassword || !formData.agreeToTerms;
     }
   };
 
@@ -345,7 +331,7 @@ export default function BankingAuth() {
               )}
 
               {/* Security Badge */}
-              {!isVerySmall && (
+              { !isVerySmall && (
                 <div className="mt-6 max-w-md mx-auto lg:mx-0">
                   <div className="bg-blue-950/30 border border-blue-700 rounded-lg p-3 flex items-center justify-center gap-2">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -364,7 +350,7 @@ export default function BankingAuth() {
           )}
 
           {/* Right Side - Auth Form */}
-          <div className={`bg-blue-950 rounded-xl mt-16 lg:rounded-2xl shadow-xl p-4 lg:p-8 xl:p-12 transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'} border border-blue-800 ${isVerySmall ? 'mt-0' : 'mt-12 lg:mt-16'}`}>
+          <div className={`bg-blue-950 rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-8 xl:p-12 transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'} border border-blue-800 ${isVerySmall ? 'mt-0' : 'mt-12 lg:mt-16'}`}>
             {/* Form Header */}
             <div className="text-center mb-6">
               <div className={`${
@@ -712,7 +698,7 @@ export default function BankingAuth() {
                 </>
               )}
 
-              {/* Submit Button - Now shows validation state */}
+              {/* Submit Button */}
               <button 
                 type="submit"
                 disabled={isLoading}
@@ -724,33 +710,6 @@ export default function BankingAuth() {
                       : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white hover:shadow-xl'
                 }`}
                 style={{ animationDelay: isLogin ? '300ms' : '350ms' }}
-                onClick={(e) => {
-                  if (!isFormValid()) {
-                    e.preventDefault();
-                    setIsSubmitted(true);
-                    setShowAllErrors(true);
-                    validateForm();
-                    
-                    // Show alert for empty required fields
-                    if (hasEmptyRequiredFields()) {
-                      alert(`Please fill in all required fields marked with *\n\n${
-                        isLogin 
-                          ? '• User ID / Customer ID\n• Password'
-                          : '• Legal Name\n• Email Address\n• Mobile Number\n• Password\n• Confirm Password\n• Terms Agreement'
-                      }`);
-                    }
-                    
-                    // Scroll to first error
-                    const firstError = Object.keys(validationErrors)[0];
-                    if (firstError) {
-                      const element = document.getElementById(firstError);
-                      if (element) {
-                        element.focus();
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                    }
-                  }
-                }}
               >
                 {isLoading ? (
                   <>
@@ -765,7 +724,7 @@ export default function BankingAuth() {
                     <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    {isLogin ? "Secure Login " : "Open Account"}
+                    {isLogin ? "Secure Login" : "Open Account"}
                   </>
                 ) : (
                   isLogin ? "Secure Login" : "Open Account"
@@ -984,7 +943,7 @@ export default function BankingAuth() {
         /* Ensure form elements don't overflow */
         input, select, textarea {
           max-width: 100%;
-          box-sizing border-box;
+          box-sizing: border-box;
         }
       `}</style>
     </div>

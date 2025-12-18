@@ -1,30 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function BankingAuth() {
   const [isLogin, setIsLogin] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isVerySmall, setIsVerySmall] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
+    phone: "",
+    accountType: "savings",
     password: "",
     confirmPassword: "",
     rememberMe: false,
     agreeToTerms: false,
-    accountType: ""
+    userId: ""
   });
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showAllErrors, setShowAllErrors] = useState(false);
+  
+  // Password rules
+  const [passwordRules, setPasswordRules] = useState({
+    length: false,
+    upper: false,
+    lower: false,
+    number: false,
+    special: false
+  });
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsVisible(true);
     
-    // Check screen size
     const checkScreenSize = () => {
       const width = window.innerWidth;
       setIsMobile(width < 768);
@@ -39,10 +50,21 @@ export default function Login() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    
+    if (name === "phone") {
+      // Allow only numbers, max 10 digits
+      if (/^\d{0,10}$/.test(value)) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else if (name === "password") {
+      setFormData(prev => ({ ...prev, [name]: value }));
+      validatePasswordRules(value);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
     
     // Clear validation error for this field when user starts typing
     if (validationErrors[name]) {
@@ -52,7 +74,7 @@ export default function Login() {
       }));
     }
     
-    // Special case for confirmPassword - also clear password error if user fixes it
+    // Special case for confirmPassword
     if (name === 'confirmPassword' || name === 'password') {
       if (validationErrors.confirmPassword) {
         setValidationErrors(prev => ({
@@ -63,30 +85,54 @@ export default function Login() {
     }
   };
 
+  const validatePasswordRules = (password) => {
+    const rules = {
+      length: password.length >= 8,
+      upper: /[A-Z]/.test(password),
+      lower: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    };
+    setPasswordRules(rules);
+    return rules;
+  };
+
   const validateForm = () => {
     const errors = {};
     
-    // Common validations for both login and signup
-    if (!formData.email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-    
-    if (!formData.password) {
-      errors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    }
-    
-    // Signup specific validations
-    if (!isLogin) {
-      if (!formData.firstName.trim()) {
-        errors.firstName = "First name is required";
+    if (isLogin) {
+      // Login validation
+      if (!formData.userId.trim()) {
+        errors.userId = "User ID / Customer ID is required";
       }
       
-      if (!formData.lastName.trim()) {
-        errors.lastName = "Last name is required";
+      if (!formData.password) {
+        errors.password = "Password is required";
+      } else if (formData.password.length < 8) {
+        errors.password = "Password must be at least 8 characters";
+      }
+    } else {
+      // Signup validation
+      if (!formData.name.trim()) {
+        errors.name = "Legal name is required";
+      }
+      
+      if (!formData.email.trim()) {
+        errors.email = "Email address is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        errors.email = "Please enter a valid email address";
+      }
+      
+      if (!formData.phone.trim()) {
+        errors.phone = "Mobile number is required";
+      } else if (formData.phone.length !== 10) {
+        errors.phone = "Mobile number must be 10 digits";
+      }
+      
+      if (!formData.password) {
+        errors.password = "Password is required";
+      } else if (!Object.values(passwordRules).every(Boolean)) {
+        errors.password = "Password doesn't meet all security requirements";
       }
       
       if (!formData.confirmPassword) {
@@ -101,25 +147,27 @@ export default function Login() {
     }
     
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0; // Returns true if no errors
+    return Object.keys(errors).length === 0;
   };
 
-  // Check if form is valid for button disabling
   const isFormValid = () => {
     if (isLogin) {
-      return formData.email && formData.password && !validationErrors.email && !validationErrors.password;
+      return formData.userId.trim() && formData.password && !validationErrors.userId && !validationErrors.password;
     } else {
+      const isPasswordValid = Object.values(passwordRules).every(Boolean);
       return (
-        formData.firstName.trim() &&
-        formData.lastName.trim() &&
-        formData.email &&
+        formData.name.trim() &&
+        formData.email.trim() &&
+        formData.phone.trim() &&
+        formData.phone.length === 10 &&
         formData.password &&
         formData.confirmPassword &&
         formData.password === formData.confirmPassword &&
         formData.agreeToTerms &&
-        !validationErrors.firstName &&
-        !validationErrors.lastName &&
+        isPasswordValid &&
+        !validationErrors.name &&
         !validationErrors.email &&
+        !validationErrors.phone &&
         !validationErrors.password &&
         !validationErrors.confirmPassword &&
         !validationErrors.agreeToTerms
@@ -129,16 +177,22 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true); // Mark form as submitted
+    setIsSubmitted(true);
+    setShowAllErrors(true); // Show all errors when submit is clicked
     
-    // Validate form before submission
-    if (!validateForm()) {
-      // Optional: Scroll to first error
+    const isValid = validateForm();
+    
+    if (!isValid) {
+      // Scroll to first error
       const firstError = Object.keys(validationErrors)[0];
       if (firstError) {
-        document.getElementById(firstError)?.focus();
+        const element = document.getElementById(firstError);
+        if (element) {
+          element.focus();
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-      return; // Stop form submission
+      return;
     }
     
     setIsLoading(true);
@@ -146,6 +200,11 @@ export default function Login() {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
+      if (isLogin) {
+        alert(`Secure Authentication Initiated for User ID: ${formData.userId}`);
+      } else {
+        alert(`Registration Successful!\nWelcome to SecureBank, ${formData.name}.`);
+      }
       navigate('/404');
     }, 2000);
   };
@@ -155,30 +214,52 @@ export default function Login() {
     setTimeout(() => {
       setIsLogin(!isLogin);
       setFormData({
-        firstName: "",
-        lastName: "",
+        name: "",
         email: "",
+        phone: "",
+        accountType: "savings",
         password: "",
         confirmPassword: "",
         rememberMe: false,
         agreeToTerms: false,
-        accountType: ""
+        userId: ""
       });
-      setValidationErrors({}); // Clear all validation errors
-      setIsSubmitted(false); // Reset submitted state
+      setPasswordRules({
+        length: false,
+        upper: false,
+        lower: false,
+        number: false,
+        special: false
+      });
+      setValidationErrors({});
+      setIsSubmitted(false);
+      setShowAllErrors(false);
       setIsVisible(true);
     }, 300);
   };
 
-  // Helper function to check if field should show error
+  // Helper function to determine if error should be shown
   const shouldShowError = (fieldName) => {
-    // For login mode, show errors after form submission or if field was touched
-    // For signup mode, always show validation errors
-    return isSubmitted || validationErrors[fieldName];
+    // Always show errors for signup, show after submission for login
+    if (isLogin) {
+      return isSubmitted || validationErrors[fieldName];
+    } else {
+      return showAllErrors || validationErrors[fieldName];
+    }
+  };
+
+  // Check if any required field is empty
+  const hasEmptyRequiredFields = () => {
+    if (isLogin) {
+      return !formData.userId.trim() || !formData.password;
+    } else {
+      return !formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || 
+             !formData.password || !formData.confirmPassword || !formData.agreeToTerms;
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br mt-16 from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-3 overflow-x-hidden">
+    <div className="min-h-screen mt-16 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-3 sm:p-4 overflow-x-hidden">
       <div className="w-full max-w-6xl mx-auto">
         {/* Mobile-only back button */}
         {isMobile && (
@@ -191,38 +272,43 @@ export default function Login() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center">
-          {/* Left Side - Banking Illustration & Info */}
+          {/* Left Side - Banking Branding */}
           {!isVerySmall && (
             <div className={`text-center lg:text-left transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'} px-2`}>
               <div className="mb-6">
-                <h1 className={`font-bold bg-gradient-to-r from-blue-300 to-blue-100 bg-clip-text text-transparent mb-3 ${
+                <h1 className={`font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent mb-3 ${
                   isVerySmall ? 'text-2xl' : 
                   isMobile ? 'text-3xl' : 
                   'text-4xl md:text-5xl lg:text-6xl'
                 }`}>
-                  {isLogin ? "Welcome to TrustBank" : "Join TrustBank Today"}
+                  {isLogin ? "Secure Banking Portal" : "Start Your Financial Journey"}
                 </h1>
                 <p className={`text-gray-300 max-w-md mx-auto lg:mx-0 ${
                   isVerySmall ? 'text-sm' : 'text-base lg:text-xl'
                 }`}>
                   {isLogin 
-                    ? "Sign in to access your accounts and manage finances."
-                    : "Open your account for secure banking."
+                    ? "Access your accounts, manage investments, and handle transactions securely."
+                    : "Join millions who trust SecureBank for their savings, investments, and daily banking needs."
                   }
                 </p>
               </div>
 
-              {/* Banking Features List - Simplified for mobile */}
+              {/* Banking Features */}
               <div className="space-y-3 max-w-md mx-auto lg:mx-0">
-                {[
-                  { icon: "🏦", text: "FDIC Insured", color: "from-blue-500 to-blue-600" },
-                  { icon: "🔒", text: "Bank-grade security", color: "from-green-500 to-emerald-600" },
-                  { icon: "📱", text: "24/7 Mobile Banking", color: "from-blue-600 to-indigo-600" },
-                  { icon: "💳", text: "Contactless payments", color: "from-purple-500 to-violet-600" }
-                ].map((feature, index) => (
+                {(isLogin ? [
+                  { icon: "🔒", text: "256-Bit Encryption Active", color: "from-green-500 to-emerald-500" },
+                  { icon: "🏦", text: "FDIC Insured up to $250K", color: "from-blue-500 to-indigo-500" },
+                  { icon: "📱", text: "24/7 Mobile Banking", color: "from-cyan-500 to-blue-500" },
+                  { icon: "🛡️", text: "Multi-factor Authentication", color: "from-purple-500 to-pink-500" }
+                ] : [
+                  { icon: "🏦", text: "Bank-Grade Security", color: "from-blue-500 to-indigo-500" },
+                  { icon: "💳", text: "Instant Virtual Cards", color: "from-green-500 to-emerald-500" },
+                  { icon: "📊", text: "Smart Analytics", color: "from-cyan-500 to-blue-500" },
+                  { icon: "⚡", text: "Quick Account Setup", color: "from-purple-500 to-pink-500" }
+                ]).map((feature, index) => (
                   <div 
                     key={index}
-                    className="flex items-center gap-3 p-3 bg-blue-950 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group border border-blue-800"
+                    className="flex items-center gap-3 p-3 bg-blue-950/50 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 group border border-blue-800"
                   >
                     <div className={`w-8 h-8 ${isMobile && !isVerySmall ? 'w-10 h-10' : ''} bg-gradient-to-r ${feature.color} rounded-lg flex items-center justify-center text-white text-sm ${isMobile && !isVerySmall ? 'text-lg' : ''} group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
                       {feature.icon}
@@ -236,7 +322,7 @@ export default function Login() {
                 ))}
               </div>
 
-              {/* Banking Stats - Hidden on very small screens */}
+              {/* Banking Stats */}
               {!isVerySmall && (
                 <div className={`mt-6 grid ${isMobile ? 'grid-cols-3' : 'grid-cols-3'} gap-3 max-w-md mx-auto lg:mx-0`}>
                   {[
@@ -245,7 +331,7 @@ export default function Login() {
                     { number: "$500B+", label: "Assets" }
                   ].map((stat, index) => (
                     <div key={index} className="text-center">
-                      <div className={`font-bold bg-gradient-to-r from-blue-300 to-blue-100 bg-clip-text text-transparent ${
+                      <div className={`font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent ${
                         isMobile ? 'text-lg' : 'text-xl lg:text-2xl'
                       }`}>
                         {stat.number}
@@ -261,7 +347,7 @@ export default function Login() {
               {/* Security Badge */}
               {!isVerySmall && (
                 <div className="mt-6 max-w-md mx-auto lg:mx-0">
-                  <div className="bg-blue-950/50 border border-blue-800 rounded-lg p-3 flex items-center justify-center gap-2">
+                  <div className="bg-blue-950/30 border border-blue-700 rounded-lg p-3 flex items-center justify-center gap-2">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -269,7 +355,7 @@ export default function Login() {
                     </div>
                     <div className="text-left">
                       <div className="text-xs font-semibold text-white truncate">Your Security is Our Priority</div>
-                      <div className="text-[10px] text-gray-400">Multi-factor authentication</div>
+                      <div className="text-[10px] text-gray-400">Bank-grade encryption & monitoring</div>
                     </div>
                   </div>
                 </div>
@@ -278,14 +364,14 @@ export default function Login() {
           )}
 
           {/* Right Side - Auth Form */}
-          <div className={`bg-blue-950 rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-8 xl:p-12 transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'} border border-blue-800 ${isVerySmall ? 'mt-0' : 'mt-12 lg:mt-16'}`}>
+          <div className={`bg-blue-950 rounded-xl mt-16 lg:rounded-2xl shadow-xl p-4 lg:p-8 xl:p-12 transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'} border border-blue-800 ${isVerySmall ? 'mt-0' : 'mt-12 lg:mt-16'}`}>
             {/* Form Header */}
             <div className="text-center mb-6">
               <div className={`${
                 isVerySmall ? 'w-14 h-14' : 
                 isMobile ? 'w-16 h-16' : 
                 'w-20 h-20'
-              } bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-3`}>
+              } bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3`}>
                 <span className={`${
                   isVerySmall ? 'text-lg' : 
                   isMobile ? 'text-xl' : 
@@ -299,188 +385,85 @@ export default function Login() {
                 isMobile ? 'text-xl' : 
                 'text-2xl lg:text-3xl'
               }`}>
-                {isLogin ? "Secure Login" : "Open Account"}
+                {isLogin ? "Secure Login" : "Register New Account"}
               </h2>
               <p className={`text-gray-400 ${
                 isVerySmall ? 'text-xs' : 'text-sm'
               }`}>
                 {isLogin 
-                  ? "Enter credentials to access dashboard"
-                  : "Register for banking services"
+                  ? "Enter your credentials to access your dashboard"
+                  : "Please enter your details to verify your identity"
                 }
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Fields - Only for Signup */}
-              {!isLogin && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fade-in-up">
-                  <div>
-                    <label htmlFor="firstName" className="block text-xs font-medium text-gray-300 mb-1">
-                      First Name *
+              {/* Login Fields */}
+              {isLogin ? (
+                <>
+                  {/* User ID */}
+                  <div className="animate-fade-in-up">
+                    <label htmlFor="userId" className="block text-xs font-medium text-gray-300 mb-1">
+                      User ID / Customer ID *
                     </label>
                     <input
                       type="text"
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
+                      id="userId"
+                      name="userId"
+                      value={formData.userId}
                       onChange={handleInputChange}
                       className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                        shouldShowError('firstName') && validationErrors.firstName ? 'border-red-500' : 'border-blue-700'
+                        shouldShowError('userId') && validationErrors.userId ? 'border-red-500' : 'border-blue-700'
                       }`}
-                      placeholder="John"
+                      placeholder="Enter your User ID"
+                      autoComplete="username"
                     />
-                    {shouldShowError('firstName') && validationErrors.firstName && (
+                    {shouldShowError('userId') && validationErrors.userId && (
                       <p className="text-red-400 text-[10px] mt-1 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
-                        {validationErrors.firstName}
+                        {validationErrors.userId}
                       </p>
                     )}
                   </div>
-                  <div>
-                    <label htmlFor="lastName" className="block text-xs font-medium text-gray-300 mb-1">
-                      Last Name *
+
+                  {/* Password */}
+                  <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+                    <label htmlFor="password" className="block text-xs font-medium text-gray-300 mb-1">
+                      Password *
                     </label>
-                    <input
-                      type="text"
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                        shouldShowError('lastName') && validationErrors.lastName ? 'border-red-500' : 'border-blue-700'
-                      }`}
-                      placeholder="Doe"
-                    />
-                    {shouldShowError('lastName') && validationErrors.lastName && (
+                    <div className="relative">
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
+                          shouldShowError('password') && validationErrors.password ? 'border-red-500' : 'border-blue-700'
+                        }`}
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                      />
+                      <div className="absolute right-2 top-2 text-blue-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      </div>
+                    </div>
+                    {shouldShowError('password') && validationErrors.password && (
                       <p className="text-red-400 text-[10px] mt-1 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
-                        {validationErrors.lastName}
+                        {validationErrors.password}
                       </p>
                     )}
                   </div>
-                </div>
-              )}
 
-              {/* Email Field */}
-              <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                <label htmlFor="email" className="block text-xs font-medium text-gray-300 mb-1">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                    shouldShowError('email') && validationErrors.email ? 'border-red-500' : 'border-blue-700'
-                  }`}
-                  placeholder="email@domain.com"
-                />
-                {shouldShowError('email') && validationErrors.email && (
-                  <p className="text-red-400 text-[10px] mt-1 flex items-center">
-                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {validationErrors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Account Type - Only for Signup */}
-              {!isLogin && (
-                <div className="animate-fade-in-up" style={{ animationDelay: '150ms' }}>
-                  <label htmlFor="accountType" className="block text-xs font-medium text-gray-300 mb-1">
-                    Account Type
-                  </label>
-                  <select
-                    id="accountType"
-                    name="accountType"
-                    value={formData.accountType}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-3 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm"
-                  >
-                    <option value="">Select type</option>
-                    <option value="personal">Personal</option>
-                    <option value="business">Business</option>
-                    <option value="joint">Joint</option>
-                    <option value="student">Student</option>
-                  </select>
-                </div>
-              )}
-
-              {/* Password Field */}
-              <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                <label htmlFor="password" className="block text-xs font-medium text-gray-300 mb-1">
-                  Password *
-                </label>
-                <div className="relative">
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
-                      shouldShowError('password') && validationErrors.password ? 'border-red-500' : 'border-blue-700'
-                    }`}
-                    placeholder="••••••••"
-                  />
-                  <div className="absolute right-2 top-2 text-blue-400">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="text-[10px] text-gray-400 mt-1">8+ chars, uppercase, lowercase & numbers</p>
-                {shouldShowError('password') && validationErrors.password && (
-                  <p className="text-red-400 text-[10px] mt-1 flex items-center">
-                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    {validationErrors.password}
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm Password - Only for Signup */}
-              {!isLogin && (
-                <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                  <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-300 mb-1">
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                      shouldShowError('confirmPassword') && validationErrors.confirmPassword ? 'border-red-500' : 'border-blue-700'
-                    }`}
-                    placeholder="••••••••"
-                  />
-                  {/* Error message */}
-                  {shouldShowError('confirmPassword') && validationErrors.confirmPassword && (
-                    <p className="text-red-400 text-[10px] mt-1 flex items-center">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      {validationErrors.confirmPassword}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Checkboxes */}
-              <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-                {isLogin ? (
-                  <div className="flex items-center justify-between">
+                  {/* Remember Me & Forgot Password */}
+                  <div className="flex items-center justify-between animate-fade-in-up" style={{ animationDelay: '200ms' }}>
                     <label className="flex items-center">
                       <input
                         type="checkbox"
@@ -489,53 +472,285 @@ export default function Login() {
                         onChange={handleInputChange}
                         className="w-4 h-4 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500"
                       />
-                      <span className="ml-2 text-xs text-gray-300">Remember device</span>
+                      <span className="ml-2 text-xs text-gray-300">Remember User ID</span>
                     </label>
                     <Link to="/404" className="text-xs text-blue-400 hover:text-blue-300 transition-colors duration-300">
-                      Forgot password?
+                      Forgot Password?
                     </Link>
                   </div>
-                ) : (
-                  <label className="flex items-start">
+                </>
+              ) : (
+                <>
+                  {/* Signup Fields */}
+                  <div className="animate-fade-in-up">
+                    <label htmlFor="name" className="block text-xs font-medium text-gray-300 mb-1">
+                      Legal Name *
+                    </label>
                     <input
-                      type="checkbox"
-                      name="agreeToTerms"
-                      checked={formData.agreeToTerms}
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-4 h-4 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0 ${
-                        shouldShowError('agreeToTerms') && validationErrors.agreeToTerms ? 'border-red-500' : ''
+                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        shouldShowError('name') && validationErrors.name ? 'border-red-500' : 'border-blue-700'
                       }`}
+                      placeholder="As per government ID"
+                      autoComplete="name"
                     />
-                    <span className="ml-2 text-xs text-gray-300">
-                      I agree to{" "}
-                      <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-                        Terms
-                      </Link>
-                      {" "}and{" "}
-                      <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-                        Policy
-                      </Link>
-                      {shouldShowError('agreeToTerms') && validationErrors.agreeToTerms && (
-                        <span className="block text-red-400 text-[10px] mt-1 flex items-center">
+                    {shouldShowError('name') && validationErrors.name && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+                    <label htmlFor="email" className="block text-xs font-medium text-gray-300 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        shouldShowError('email') && validationErrors.email ? 'border-red-500' : 'border-blue-700'
+                      }`}
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                    />
+                    {shouldShowError('email') && validationErrors.email && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Phone & Account Type Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+                    <div>
+                      <label htmlFor="phone" className="block text-xs font-medium text-gray-300 mb-1">
+                        Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                          shouldShowError('phone') && validationErrors.phone ? 'border-red-500' : 'border-blue-700'
+                        }`}
+                        placeholder="98765 43210"
+                        autoComplete="tel"
+                        maxLength="10"
+                      />
+                      {shouldShowError('phone') && validationErrors.phone && (
+                        <p className="text-red-400 text-[10px] mt-1 flex items-center">
                           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                           </svg>
-                          {validationErrors.agreeToTerms}
-                        </span>
+                          {validationErrors.phone}
+                        </p>
                       )}
-                    </span>
-                  </label>
-                )}
-              </div>
+                    </div>
+                    <div>
+                      <label htmlFor="accountType" className="block text-xs font-medium text-gray-300 mb-1">
+                        Account Type
+                      </label>
+                      <select
+                        id="accountType"
+                        name="accountType"
+                        value={formData.accountType}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-3 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm"
+                      >
+                        <option value="savings">Savings Account</option>
+                        <option value="current">Current Account</option>
+                        <option value="student">Student Account</option>
+                      </select>
+                    </div>
+                  </div>
 
-              {/* Submit Button */}
+                  {/* Password */}
+                  <div className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                    <label htmlFor="password" className="block text-xs font-medium text-gray-300 mb-1">
+                      Create Password *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
+                          shouldShowError('password') && validationErrors.password ? 'border-red-500' : 'border-blue-700'
+                        }`}
+                        placeholder="Create a strong password"
+                        autoComplete="new-password"
+                      />
+                      <div className="absolute right-2 top-2 text-blue-400">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Password Strength Meter */}
+                    {formData.password && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-400 mb-1">Password Strength:</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                          <span className={`text-[10px] px-2 py-1 rounded flex items-center justify-center ${
+                            passwordRules.length ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {passwordRules.length ? '✓' : '○'} 8+ Chars
+                          </span>
+                          <span className={`text-[10px] px-2 py-1 rounded flex items-center justify-center ${
+                            passwordRules.upper ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {passwordRules.upper ? '✓' : '○'} Uppercase
+                          </span>
+                          <span className={`text-[10px] px-2 py-1 rounded flex items-center justify-center ${
+                            passwordRules.lower ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {passwordRules.lower ? '✓' : '○'} Lowercase
+                          </span>
+                          <span className={`text-[10px] px-2 py-1 rounded flex items-center justify-center ${
+                            passwordRules.number ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {passwordRules.number ? '✓' : '○'} Number
+                          </span>
+                          <span className={`text-[10px] px-2 py-1 rounded flex items-center justify-center ${
+                            passwordRules.special ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {passwordRules.special ? '✓' : '○'} Symbol
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {shouldShowError('password') && validationErrors.password && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.password}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="animate-fade-in-up" style={{ animationDelay: '250ms' }}>
+                    <label htmlFor="confirmPassword" className="block text-xs font-medium text-gray-300 mb-1">
+                      Confirm Password *
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        shouldShowError('confirmPassword') && validationErrors.confirmPassword ? 'border-red-500' : 'border-blue-700'
+                      }`}
+                      placeholder="Re-enter password"
+                      autoComplete="new-password"
+                    />
+                    {shouldShowError('confirmPassword') && validationErrors.confirmPassword && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.confirmPassword}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Terms Checkbox */}
+                  <div className="animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                    <label className="flex items-start">
+                      <input
+                        type="checkbox"
+                        name="agreeToTerms"
+                        checked={formData.agreeToTerms}
+                        onChange={handleInputChange}
+                        className={`w-4 h-4 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0 ${
+                          shouldShowError('agreeToTerms') && validationErrors.agreeToTerms ? 'border-red-500' : ''
+                        }`}
+                      />
+                      <span className="ml-2 text-xs text-gray-300">
+                        I agree to the{" "}
+                        <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
+                          Terms & Conditions
+                        </Link>
+                        {" "}and{" "}
+                        <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
+                          Privacy Policy
+                        </Link>
+                        {shouldShowError('agreeToTerms') && validationErrors.agreeToTerms && (
+                          <span className="block text-red-400 text-[10px] mt-1 flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {validationErrors.agreeToTerms}
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                  </div>
+                </>
+              )}
+
+              {/* Submit Button - Now shows validation state */}
               <button 
                 type="submit"
-                disabled={isLoading || !isFormValid()}
-                className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fade-in-up text-sm active:scale-95 ${
-                  isLoading ? 'animate-pulse' : ''
+                disabled={isLoading}
+                className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center animate-fade-in-up text-sm active:scale-95 ${
+                  isLoading 
+                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 animate-pulse text-white' 
+                    : !isFormValid() 
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 cursor-not-allowed opacity-90'
+                      : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white hover:shadow-xl'
                 }`}
-                style={{ animationDelay: '500ms' }}
+                style={{ animationDelay: isLogin ? '300ms' : '350ms' }}
+                onClick={(e) => {
+                  if (!isFormValid()) {
+                    e.preventDefault();
+                    setIsSubmitted(true);
+                    setShowAllErrors(true);
+                    validateForm();
+                    
+                    // Show alert for empty required fields
+                    if (hasEmptyRequiredFields()) {
+                      alert(`Please fill in all required fields marked with *\n\n${
+                        isLogin 
+                          ? '• User ID / Customer ID\n• Password'
+                          : '• Legal Name\n• Email Address\n• Mobile Number\n• Password\n• Confirm Password\n• Terms Agreement'
+                      }`);
+                    }
+                    
+                    // Scroll to first error
+                    const firstError = Object.keys(validationErrors)[0];
+                    if (firstError) {
+                      const element = document.getElementById(firstError);
+                      if (element) {
+                        element.focus();
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }
+                  }
+                }}
               >
                 {isLoading ? (
                   <>
@@ -543,15 +758,22 @@ export default function Login() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    {isLogin ? "Accessing..." : "Creating..."}
+                    {isLogin ? "Authenticating..." : "Creating Account..."}
+                  </>
+                ) : !isFormValid() ? (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {isLogin ? "Fill Required Fields" : "Complete All Fields"}
                   </>
                 ) : (
-                  isLogin ? "Access Dashboard" : "Open Account"
+                  isLogin ? "Secure Login" : "Open Account"
                 )}
               </button>
 
               {/* Security Note */}
-              <div className="bg-blue-900/50 border border-blue-800 rounded-lg p-3 text-center animate-fade-in-up" style={{ animationDelay: '550ms' }}>
+              <div className="bg-blue-900/50 border border-blue-800 rounded-lg p-3 text-center animate-fade-in-up" style={{ animationDelay: isLogin ? '350ms' : '400ms' }}>
                 <div className="flex items-center justify-center gap-2 text-xs text-gray-300">
                   <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -561,42 +783,35 @@ export default function Login() {
               </div>
 
               {/* Divider */}
-              <div className="relative animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+              <div className="relative animate-fade-in-up" style={{ animationDelay: isLogin ? '400ms' : '450ms' }}>
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-blue-800"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-blue-950 text-gray-400">Quick access</span>
+                  <span className="px-2 bg-blue-950 text-gray-400">
+                    {isLogin ? "New to SecureBank?" : "Already banking with us?"}
+                  </span>
                 </div>
               </div>
 
-              {/* Alternative Access */}
-              <div className="animate-fade-in-up" style={{ animationDelay: '700ms' }}>
+              {/* Switch Mode Button */}
+              <div className="animate-fade-in-up" style={{ animationDelay: isLogin ? '450ms' : '500ms' }}>
                 <button
                   type="button"
-                  onClick={() => navigate('/404')}
+                  onClick={toggleAuthMode}
                   className="w-full bg-blue-900 border border-blue-800 text-gray-300 py-2 px-3 rounded-lg font-medium hover:bg-blue-800 transition-all duration-300 flex items-center justify-center gap-2 text-xs active:scale-95"
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M16.5 1.25a1.5 1.5 0 0 1 1.5 1.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-9a1.5 1.5 0 0 1-1.5-1.5v-1.5a1.5 1.5 0 0 1 1.5-1.5h9z"/>
-                    <path d="M2.25 7.5a1.5 1.5 0 0 1 1.5-1.5h16.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5v-12z"/>
-                  </svg>
-                  Mobile Banking App
+                  {isLogin ? (
+                    <>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path fillRule="evenodd" d="M12 2a1 1 0 00-1 1v8H5a1 1 0 100 2h6v8a1 1 0 102 0v-8h6a1 1 0 100-2h-6V3a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      Open an Account
+                    </>
+                  ) : (
+                    "Log In Here"
+                  )}
                 </button>
-              </div>
-
-              {/* Switch Auth Mode */}
-              <div className="text-center animate-fade-in-up" style={{ animationDelay: '800ms' }}>
-                <p className={`text-gray-400 ${isVerySmall ? 'text-xs' : 'text-sm'}`}>
-                  {isLogin ? "New to TrustBank? " : "Already have an account? "}
-                  <button
-                    type="button"
-                    onClick={toggleAuthMode}
-                    className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300 text-sm active:scale-95"
-                  >
-                    {isLogin ? "Open an account" : "Sign in"}
-                  </button>
-                </p>
               </div>
             </form>
           </div>
@@ -614,7 +829,7 @@ export default function Login() {
               height: `${Math.random() * 8 + 3}px`,
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              backgroundColor: ['#2563EB', '#1D4ED8', '#3B82F6', '#0EA5E9', '#1E40AF'][i % 5],
+              backgroundColor: ['#2563EB', '#0EA5E9', '#1D4ED8', '#3B82F6', '#1E40AF'][i % 5],
               animationDelay: `${Math.random() * 10}s`,
               animationDuration: `${Math.random() * 15 + 10}s`,
               borderRadius: Math.random() > 0.5 ? '50%' : '25%'
@@ -626,7 +841,7 @@ export default function Login() {
         {!isVerySmall && (
           <>
             <div className="absolute top-1/4 -left-20 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-pulse-slow"></div>
-            <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-pulse-slow" style={{animationDelay: '3s'}}></div>
+            <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-5 animate-pulse-slow" style={{animationDelay: '3s'}}></div>
           </>
         )}
       </div>
@@ -689,6 +904,9 @@ export default function Login() {
           .text-xs {
             font-size: 0.65rem !important;
           }
+          .text-\[10px\] {
+            font-size: 0.6rem !important;
+          }
           .p-4 {
             padding: 0.75rem !important;
           }
@@ -719,6 +937,11 @@ export default function Login() {
             height: 44px !important;
             font-size: 20px !important;
           }
+          
+          /* Password grid for small screens */
+          .grid.grid-cols-2.sm\\:grid-cols-5 {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
         }
         
         /* Mobile-specific touch improvements */
@@ -741,27 +964,27 @@ export default function Login() {
           }
         }
         
-        /* Prevent zoom on input focus in iOS */
+        /* Prevent zoom on iOS */
         @media (max-width: 768px) {
           input[type="text"],
           input[type="email"],
           input[type="password"],
+          input[type="tel"],
           textarea,
           select {
             font-size: 16px !important;
           }
         }
         
-        /* Better touch targets for all interactive elements */
-        button, a, input[type="checkbox"], input[type="radio"] {
-          min-height: 44px;
-          min-width: 44px;
+        /* Prevent horizontal scrolling */
+        .overflow-x-hidden {
+          overflow-x: hidden;
         }
         
-        /* Improve checkbox touch targets */
-        input[type="checkbox"] {
-          min-height: 20px;
-          min-width: 20px;
+        /* Ensure form elements don't overflow */
+        input, select, textarea {
+          max-width: 100%;
+          box-sizing border-box;
         }
       `}</style>
     </div>

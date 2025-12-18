@@ -123,7 +123,7 @@ const Navbar = () => {
             lg:flex
             flex-col lg:flex-row
             gap-0 lg:gap-2
-            items-stretch lg:items-center
+            items-center
             text-base font-medium
             absolute lg:static
             top-full left-0 w-full lg:w-auto
@@ -131,36 +131,35 @@ const Navbar = () => {
             border border-gray-100 lg:border-none
             shadow-2xl lg:shadow-none
             rounded-2xl lg:rounded-none
-            py-0 lg:py-0
+            py-2 lg:py-0
             z-40
             transition-all duration-300 ease-in-out
-            mt-2 lg:mt-0
-            overflow-hidden
+            mt-1 lg:mt-0
           `}
         >
-          {/* Home Dropdown - FIXED ALIGNMENT */}
+          {/* Home Dropdown */}
           <li className="relative w-full lg:w-auto border-b border-gray-100 lg:border-none">
-            <div className="flex items-center justify-between lg:justify-start px-4 py-3 lg:py-0 w-full hover:bg-gray-50 lg:hover:bg-transparent group">
+            <div className="flex items-center justify-between lg:justify-start px-6 py-3 lg:py-0 w-full group">
               <Link 
                 to="/"
                 onClick={() => {
                   closeHomeDropdown();
                   closeMenu();
                 }}
-                className="flex items-center gap-3 group-hover:text-purple-600 transition-all duration-300 text-gray-800 py-2 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-gray-50 lg:hover:bg-gray-100 flex-1"
+                className="flex items-center gap-3 group-hover:text-purple-600 transition-all duration-300 text-gray-800 py-3 lg:py-2 px-4 lg:px-3 rounded-lg hover:bg-gray-50"
               > 
-                <div className="group-hover:scale-110 transition-transform duration-300 w-5 flex-shrink-0">
+                <div className="group-hover:scale-110 transition-transform duration-300">
                   {iconMap.home}
                 </div>
-                <span className="font-semibold text-left">
+                <span className="font-semibold">
                   {isHomePage2 ? "Home2" : "Home"}
                 </span>
               </Link>
               
-              {/* Dropdown toggle button - FIXED POSITIONING */}
+              {/* Dropdown toggle button */}
               <button
                 onClick={toggleHomeDropdown}
-                className="p-2 hover:bg-gray-100 lg:hover:bg-gray-200 rounded-lg transition-all duration-300 lg:ml-1 flex-shrink-0"
+                className="p-3 hover:bg-gray-100 lg:hover:bg-gray-200 rounded-lg transition-all duration-300 absolute right-4 lg:relative lg:right-0 lg:ml-2"
                 aria-label="Toggle home dropdown"
               >
                 <FaChevronDown 
@@ -171,18 +170,18 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* Dropdown Menu - FIXED ALIGNMENT */}
+            {/* Dropdown Menu */}
             <div
               className={`
-                ${isHomeDropdownOpen ? "block" : "hidden"}
+                ${isHomeDropdownOpen ? "block animate-fadeIn" : "hidden"}
                 lg:absolute
                 top-full left-0 lg:left-0
                 w-full lg:w-56
                 bg-white/95 backdrop-blur-sm
                 border border-gray-200
-                rounded-b-xl lg:rounded-xl
+                rounded-xl lg:rounded-xl
                 shadow-xl
-                py-2
+                py-3
                 z-50
                 mt-0 lg:mt-2
               `}
@@ -193,12 +192,12 @@ const Navbar = () => {
                   closeHomeDropdown();
                   closeMenu();
                 }}
-                className="flex items-center gap-4 py-3 px-4 hover:bg-gray-50 hover:text-purple-600 transition-all duration-300 group"
+                className="flex items-center gap-4 py-3 px-6 hover:bg-gray-50 hover:text-purple-600 transition-all duration-300 group"
               >
-                <div className="group-hover:scale-110 transition-transform duration-300 w-5 flex-shrink-0">
+                <div className="group-hover:scale-110 transition-transform duration-300">
                   {iconMap.home}
                 </div>
-                <span className="font-medium text-sm">
+                <span className="font-medium">
                   {isHomePage2 ? "Switch to Home" : "Switch to Home2"}
                 </span>
               </Link>
@@ -213,7 +212,6 @@ const Navbar = () => {
                 icon={iconMap.dashboard}
                 text="Dashboard"
                 onClick={closeMenu}
-                isMobile={isOpen}
               />
               
               <NavItem 
@@ -221,7 +219,6 @@ const Navbar = () => {
                 icon={iconMap.about}
                 text="About us"
                 onClick={closeMenu}
-                isMobile={isOpen}
               />
               
               <NavItem 
@@ -229,7 +226,6 @@ const Navbar = () => {
                 icon={iconMap.services}
                 text="Services"
                 onClick={closeMenu}
-                isMobile={isOpen}
               />
               
               <NavItem 
@@ -237,17 +233,15 @@ const Navbar = () => {
                 icon={iconMap.contact}
                 text="Contact"
                 onClick={closeMenu}
-                isMobile={isOpen}
               />
               
-              {/* Login Button - FIXED ALIGNMENT */}
-              <li className="w-full lg:w-auto border-t border-gray-100 lg:border-none px-4 py-4 lg:py-0">
+              <li className="w-full lg:w-auto px-4 py-2 lg:py-0">
                 <Link
                   to="/login"
                   onClick={closeMenu}
-                  className="group flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 transition-all duration-300 py-3.5 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full"
+                  className="group flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 transition-all duration-300 py-3.5 px-8 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 w-full lg:w-auto"
                 >
-                  <div className="group-hover:scale-110 transition-transform duration-300 w-5">
+                  <div className="group-hover:scale-110 transition-transform duration-300">
                     {iconMap.login}
                   </div>
                   <span>Login</span>
@@ -261,7 +255,6 @@ const Navbar = () => {
               icon={iconMap.pricing}
               text="Pricing"
               onClick={closeMenu}
-              isMobile={isOpen}
             />
           )}
         </ul>
@@ -270,18 +263,18 @@ const Navbar = () => {
   );
 };
 
-// Updated NavItem component with better alignment
-const NavItem = ({ to, icon, text, onClick, isMobile }) => (
-  <li className={`w-full lg:w-auto border-b border-gray-100 lg:border-none ${isMobile ? 'px-4' : ''}`}>
+// Reusable NavItem component with improved padding
+const NavItem = ({ to, icon, text, onClick }) => (
+  <li className="w-full lg:w-auto border-b border-gray-100 lg:border-none">
     <Link
       to={to}
       onClick={onClick}
-      className="group flex items-center gap-3 py-3.5 lg:py-3 px-4 lg:px-5 rounded-lg hover:bg-gray-50 hover:text-purple-600 transition-all duration-300 w-full"
+      className="group flex items-center gap-3 text-center py-3.5 px-6 lg:py-3 lg:px-5 rounded-lg hover:bg-gray-50 hover:text-purple-600 transition-all duration-300 w-full lg:w-auto"
     >
-      <div className="group-hover:scale-110 transition-transform duration-300 w-5 flex-shrink-0">
+      <div className="group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
-      <span className="font-medium text-left">{text}</span>
+      <span className="font-medium">{text}</span>
     </Link>
   </li>
 );

@@ -332,7 +332,7 @@ const ExploreServices = () => {
         <div className="max-w-7xl mx-auto relative">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Content */}
-            <motion.div
+            < motion.div
               initial="hidden"
               animate={heroControls}
               variants={slideInFromLeft}
@@ -370,26 +370,20 @@ const ExploreServices = () => {
                 No branches, no paperwork, just seamless banking powered by technology.
               </motion.p>
 
-              <motion.div 
-                className="flex flex-col sm:flex-row gap-4"
-                variants={fadeInUp}
-                transition={{ delay: 0.4 }}
-              >
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to="/contact" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:-translate-y-1 shadow-xl hover:shadow-2xl hover:shadow-purple-500/25 flex items-center justify-center group">
-                    <Sparkles className="mr-3 w-5 h-5" />
-                    Start Free Trial
-                    <ArrowRight className="ml-2 w-5 h-5 " />
-                  </Link>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link to="/404" className="px-8 py-4 bg-white/5 text-white rounded-xl font-semibold text-lg border border-white/10 hover:bg-white/10 transition-all hover:shadow-lg backdrop-blur-sm flex items-center justify-center">
-                    <Smartphone className="mr-2 w-5 h-5" />
-                    Watch Demo
-                  </Link>
-                </motion.div>
-              </motion.div>
-
+             <motion.div 
+  className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+  variants={fadeInUp}
+  transition={{ delay: 0.4 }}
+>
+  
+  
+  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    <Link to="/404" className="px-8 py-4 bg-white/5 text-white rounded-xl font-semibold text-lg border border-white/10 hover:bg-white/10 transition-all hover:shadow-lg backdrop-blur-sm flex items-center justify-center">
+      <Smartphone className="mr-2 w-5 h-5" />
+      Watch Demo
+    </Link>
+  </motion.div>
+</motion.div>
               {/* App Store Badges */}
               <motion.div 
                 className="flex gap-4 mt-8"

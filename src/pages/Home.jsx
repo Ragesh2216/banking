@@ -277,17 +277,18 @@ const Home = () => {
                 Experience banking reimagined. From smart savings to intelligent investments, 
                 we provide everything you need to grow your wealth securely.
               </p>
-<div className="flex justify-center mb-4">
-          <Link to="/login" 
-            className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center group no-underline animate-fade-in-up"
-            style={{ animationDelay: '700ms' }}
-          >
-            <span className="flex items-center">
-              Start Banking Free
-              <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-            </span>
-          </Link>
-        </div>
+<div className="flex flex-col sm:flex-row gap-4">
+  {/* Centered Button */}
+  <div className="flex justify-center w-full">
+    <Link to="/404" className="px-8 py-4  bg-gradient-to-r from-blue-600 to-indigo-600 text-gray-800 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg flex items-center justify-center">
+    <Smartphone className="mr-2 w-5 h-5" />
+    Download App
+  </Link >
+  </div>
+  
+ 
+</div>
+
 
         
 

@@ -137,18 +137,22 @@ const Navbar = () => {
             mt-1 lg:mt-0
           `}
         >
-          {/* Home Dropdown */}
-          <li className="relative w-full lg:w-auto border-b border-gray-100 lg:border-none">
-            <div className="flex items-center justify-between lg:justify-start px-6 py-3 lg:py-0 w-full group">
+           {/* Home Dropdown - FIXED FOR LAPTOP */}
+          <li className="relative w-full lg:w-auto group">
+            <div className="flex items-center justify-between px-4 py-3 lg:py-0 w-full hover:bg-gray-50 lg:hover:bg-transparent">
               <Link 
                 to="/"
-                onClick={() => {
-                  closeHomeDropdown();
-                  closeMenu();
+                onClick={(e) => {
+                  if (!isHomeDropdownOpen) {
+                    closeHomeDropdown();
+                    closeMenu();
+                  } else {
+                    e.preventDefault(); // Prevent navigation when dropdown is open
+                  }
                 }}
-                className="flex items-center gap-3 group-hover:text-purple-600 transition-all duration-300 text-gray-800 py-3 lg:py-2 px-4 lg:px-3 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-3 group-hover:text-purple-600 transition-all duration-300 text-gray-800 py-2 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-gray-50 lg:hover:bg-gray-100 flex-1"
               > 
-                <div className="group-hover:scale-110 transition-transform duration-300">
+                <div className="group-hover:scale-110 transition-transform duration-300 w-5">
                   {iconMap.home}
                 </div>
                 <span className="font-semibold">
@@ -156,11 +160,12 @@ const Navbar = () => {
                 </span>
               </Link>
               
-              {/* Dropdown toggle button */}
+              {/* Dropdown toggle button - FIXED FOR LAPTOP */}
               <button
                 onClick={toggleHomeDropdown}
-                className="p-3 hover:bg-gray-100 lg:hover:bg-gray-200 rounded-lg transition-all duration-300 absolute right-4 lg:relative lg:right-0 lg:ml-2"
+                className="p-2 hover:bg-gray-100 lg:hover:bg-gray-200 rounded-lg transition-all duration-300 flex-shrink-0"
                 aria-label="Toggle home dropdown"
+                aria-expanded={isHomeDropdownOpen}
               >
                 <FaChevronDown 
                   className={`h-4 w-4 text-gray-500 transition-transform duration-300 ${
@@ -169,6 +174,7 @@ const Navbar = () => {
                 />
               </button>
             </div>
+
 
             {/* Dropdown Menu */}
             <div

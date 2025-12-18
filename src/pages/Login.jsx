@@ -273,14 +273,14 @@ const Login = () => {
                       <i className="fa fa-id-card text-white/60 group-focus-within:text-blue-300 transition-colors duration-200 text-sm" />
                     </div>
                     <input
-                      className="w-full pl-10 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:border-blue-400 transition-all duration-200 backdrop-blur-sm text-sm sm:text-base"
-                      type="text"
-                      name="loginEmail"
-                      placeholder="Customer ID"
-                      value={formData.loginEmail}
+                      className="w-full pl-10 pr-4 py-3 sm:py-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:border-emerald-400 transition-all duration-200 backdrop-blur-sm text-sm sm:text-base"
+                      type="email"
+                      name="signupEmail"
+                      placeholder="Email Address"
+                      value={formData.signupEmail}
                       onChange={handleInputChange}
                       required
-                      autoComplete="username"
+                      autoComplete="email"
                     />
                   </div>
 

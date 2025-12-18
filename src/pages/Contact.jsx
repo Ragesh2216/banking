@@ -15,7 +15,7 @@ const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  
+
   // Refs for scroll animations
   const containerRef = useRef(null);
   const headerRef = useRef(null);
@@ -25,7 +25,7 @@ const Contact = () => {
 
   useEffect(() => {
     setIsVisible(true);
-    
+
     // Scroll progress tracking
     const handleScroll = () => {
       if (containerRef.current) {
@@ -44,7 +44,7 @@ const Contact = () => {
   // Add scroll animations using Intersection Observer
   useEffect(() => {
     const observers = [];
-    
+
     const createObserver = (ref, options = {}) => {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -60,11 +60,11 @@ const Contact = () => {
         rootMargin: '50px',
         ...options
       });
-      
+
       if (ref.current) {
         observer.observe(ref.current);
       }
-      
+
       observers.push(observer);
       return observer;
     };
@@ -102,7 +102,7 @@ const Contact = () => {
     // Add submission animation
     const form = e.target;
     form.classList.add('submitting');
-    
+
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -148,7 +148,7 @@ const Contact = () => {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
-          <div 
+          <div
             className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-success-pop border border-blue-200 transform hover:scale-[1.02] transition-transform duration-500"
             data-animation="pop"
           >
@@ -161,26 +161,26 @@ const Contact = () => {
                 </svg>
               </div>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-800 bg-clip-text text-transparent mb-6 animate-fade-in-up">
               Banking Inquiry Submitted!
             </h2>
-            
+
             <div className="relative mb-8">
               <p className="text-gray-600 text-lg md:text-xl leading-relaxed animate-fade-in-up delay-200">
-                Thank you for contacting TrustBank. One of our financial advisors will review your inquiry 
+                Thank you for contacting TrustBank. One of our financial advisors will review your inquiry
                 and get back to you within 24 hours with personalized banking solutions.
               </p>
-              
+
               {/* Animated progress bar */}
               <div className="mt-6 h-2 bg-gray-200 rounded-full overflow-hidden max-w-md mx-auto animate-fade-in-up delay-400">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full animate-progress"
                   style={{ width: '100%' }}
                 ></div>
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-600">
               <button
                 onClick={() => {
@@ -188,7 +188,7 @@ const Contact = () => {
                   setTimeout(() => {
                     const formSection = document.querySelector('form');
                     if (formSection) {
-                      formSection.scrollIntoView({ 
+                      formSection.scrollIntoView({
                         behavior: 'smooth',
                         block: 'center'
                       });
@@ -212,10 +212,10 @@ const Contact = () => {
                 </svg>
               </Link>
             </div>
-            
+
             <div className="mt-8 pt-6 border-t border-gray-200 animate-fade-in-up delay-800">
               <p className="text-sm text-gray-500">
-                <span className="font-semibold text-blue-600">Next Steps:</span> Check your email for confirmation. 
+                <span className="font-semibold text-blue-600">Next Steps:</span> Check your email for confirmation.
                 You'll receive a case number for tracking your inquiry.
               </p>
             </div>
@@ -226,28 +226,28 @@ const Contact = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 relative overflow-hidden" 
+    <div
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 relative overflow-hidden"
       ref={containerRef}
     >
       {/* Enhanced Animated Background Elements with scroll interaction */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none"> 
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Scrolling gradient overlay */}
-        <div 
+        <div
           className="absolute inset-0 bg-gradient-to-b from-blue-600/5 via-transparent to-blue-400/5 transition-all duration-1000"
           style={{
             opacity: scrollProgress * 0.5,
             transform: `translateY(${scrollProgress * -100}px)`
           }}
         ></div>
-        
+
         {/* Floating Shapes with scroll parallax */}
         {[...Array(25)].map((_, i) => {
           const depth = Math.random();
           const speed = 0.5 + depth * 2;
           const size = 4 + depth * 20;
           const isLeft = i % 2 === 0;
-          
+
           return (
             <div
               key={i}
@@ -269,29 +269,29 @@ const Contact = () => {
         })}
 
         {/* Animated Gradient Blobs with scroll movement */}
-        <div 
+        <div
           className="absolute top-1/4 -left-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
           style={{
             transform: `translate(${scrollProgress * -30}px, ${scrollProgress * -20}px) scale(${1 + scrollProgress * 0.1})`
           }}
         ></div>
-        <div 
+        <div
           className="absolute top-1/2 -right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
           style={{
             animationDelay: '2s',
             transform: `translate(${scrollProgress * 40}px, ${scrollProgress * 20}px) scale(${1 + scrollProgress * 0.15})`
           }}
         ></div>
-        <div 
+        <div
           className="absolute bottom-1/4 left-1/2 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"
           style={{
             animationDelay: '4s',
             transform: `translate(${scrollProgress * 20}px, ${scrollProgress * 40}px) scale(${1 + scrollProgress * 0.05})`
           }}
         ></div>
-        
+
         {/* Grid pattern with scroll */}
-        <div 
+        <div
           className="absolute inset-0 opacity-5"
           style={{
             backgroundImage: `
@@ -313,18 +313,18 @@ const Contact = () => {
             <div className="absolute -top-4 -left-4 w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full opacity-20 animate-orbit-1"></div>
             <div className="absolute -top-6 -right-6 w-6 h-6 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full opacity-20 animate-orbit-2"></div>
             <div className="absolute -bottom-4 right-1/3 w-4 h-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full opacity-20 animate-orbit-3"></div>
-            
-              <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 bg-clip-text text-transparent mb-4 transition-all duration-1000 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'
-            }`}>
-            Contact TrustBank
-          </h1>
+
+            <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 bg-clip-text text-transparent mb-4 transition-all duration-1000 ${isVisible ? 'animate-fade-in-up' : 'opacity-0 translate-y-8'
+              }`}>
+              Contact TrustBank
+            </h1>
           </div>
-          
+
           <div className="relative">
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed opacity-0 animate-in">
               Have questions about our banking services? Our financial experts are ready to help you with personalized solutions.
             </p>
-            
+
             {/* Animated sparkles */}
             <div className="absolute inset-0 overflow-hidden opacity-20">
               {[...Array(3)].map((_, i) => (
@@ -341,13 +341,13 @@ const Contact = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Scroll indicator */}
-          <div 
+          <div
             className="mt-12 w-6 h-10 mx-auto border-2 border-blue-400 rounded-full flex justify-center opacity-0 animate-in delay-500"
             style={{ animationDelay: '500ms' }}
           >
-            <div 
+            <div
               className="w-1 h-3 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full mt-2 animate-bounce"
               style={{ animationDelay: '800ms' }}
             ></div>
@@ -356,8 +356,8 @@ const Contact = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Information - Slides in from left */}
-          <div 
-            className="lg:col-span-1" 
+          <div
+            className="lg:col-span-1"
             ref={contactInfoRef}
             data-animation="slide-in-left"
           >
@@ -367,7 +367,7 @@ const Contact = () => {
               <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-blue-500 rounded-tr-xl"></div>
               <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-blue-500 rounded-bl-xl"></div>
               <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-blue-500 rounded-br-xl"></div>
-              
+
               <h2 className="text-2xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent relative">
                 Banking Support
                 <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mt-2"></div>
@@ -454,7 +454,7 @@ const Contact = () => {
               </div>
 
               {/* Emergency Banking */}
-              <div 
+              <div
                 className="mt-8 p-4 bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl text-white transform hover:scale-105 transition-all duration-300 shadow-lg opacity-0 animate-in"
                 style={{ animationDelay: '600ms' }}
               >
@@ -476,8 +476,8 @@ const Contact = () => {
           </div>
 
           {/* Contact Form - Slides in from right */}
-          <div 
-            className="lg:col-span-2" 
+          <div
+            className="lg:col-span-2"
             ref={formRef}
             data-animation="slide-in-right"
           >
@@ -486,7 +486,7 @@ const Contact = () => {
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#60A5FA_2px,transparent_2px)] bg-[size:20px_20px]"></div>
               </div>
-              
+
               {/* Floating particles inside form */}
               <div className="absolute inset-0 overflow-hidden">
                 {[...Array(5)].map((_, i) => (
@@ -541,8 +541,8 @@ const Contact = () => {
                       delay: 350
                     }
                   ].map((field, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="opacity-0 animate-in transform hover:scale-105 transition-transform duration-300"
                       style={{ animationDelay: `${field.delay}ms` }}
                     >
@@ -565,7 +565,7 @@ const Contact = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div 
+                  <div
                     className="opacity-0 animate-in transform hover:scale-105 transition-transform duration-300"
                     style={{ animationDelay: '400ms' }}
                   >
@@ -578,7 +578,7 @@ const Contact = () => {
                       id="inquiryType"
                       value={formData.inquiryType}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border-2 border-white/30 bg-white/90 rounded-xl focus:ring-2 focus:ring-white focus:border-white focus:bg-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%231E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>')] bg-no-repeat bg-[center_right_1rem]"
+                      className="w-full px-4 py-3 border-2 border-white/30 bg-white/90 rounded-xl focus:ring-2 focus:ring-white focus:border-white focus:bg-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl appearance-none bg-select-arrow bg-no-repeat bg-[center_right_1rem]"
                       required
                     >
                       <option value="">Select inquiry type</option>
@@ -593,7 +593,7 @@ const Contact = () => {
                     </select>
                   </div>
 
-                  <div 
+                  <div
                     className="opacity-0 animate-in transform hover:scale-105 transition-transform duration-300"
                     style={{ animationDelay: '450ms' }}
                   >
@@ -602,12 +602,12 @@ const Contact = () => {
                       Approximate Amount (if applicable)
                     </label>
                     <select
-  name="amount"
-  id="amount"
-  value={formData.amount}
-  onChange={handleChange}
-  className="w-full px-4 py-3 border-2 border-white/30 bg-white/90 rounded-xl focus:ring-2 focus:ring-white focus:border-white focus:bg-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%231E40AF%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M6%209l6%206%206-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[center_right_1rem]"
->
+                      name="amount"
+                      id="amount"
+                      value={formData.amount}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border-2 border-white/30 bg-white/90 rounded-xl focus:ring-2 focus:ring-white focus:border-white focus:bg-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%231E40AF%22%20stroke-width=%222%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M6%209l6%206%206-6%22/%3E%3C/svg%3E')] bg-no-repeat bg-[center_right_1rem]"
+                    >
                       <option value="">Select amount range</option>
                       <option value="<10k">Under $10,000</option>
                       <option value="10k-50k">$10,000 - $50,000</option>
@@ -619,7 +619,7 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div 
+                <div
                   className="opacity-0 animate-in transform hover:scale-105 transition-transform duration-300"
                   style={{ animationDelay: '500ms' }}
                 >
@@ -639,7 +639,7 @@ const Contact = () => {
                   ></textarea>
                 </div>
 
-                <div 
+                <div
                   className="flex items-center space-x-4 opacity-0 animate-in"
                   style={{ animationDelay: '550ms' }}
                 >
@@ -678,7 +678,7 @@ const Contact = () => {
                   )}
                 </button>
 
-                <p 
+                <p
                   className="text-sm text-white/80 text-center opacity-0 animate-in"
                   style={{ animationDelay: '700ms' }}
                 >
@@ -691,20 +691,20 @@ const Contact = () => {
 
         {/* FAQ Section - Slides in from bottom */}
         <section className="mt-16" ref={faqRef} data-animation="slide-in-bottom">
-          <div 
+          <div
             className="bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 rounded-2xl shadow-2xl p-6 md:p-8 transform hover:-translate-y-1 transition-all duration-500 opacity-0 animate-in border border-blue-600/30 hover:shadow-3xl relative overflow-hidden"
           >
             {/* Animated background */}
             <div className="absolute inset-0 opacity-5">
               <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_25%,rgba(255,255,255,0.1)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.1)_75%,rgba(255,255,255,0.1)_100%)] bg-[size:20px_20px]"></div>
             </div>
-            
+
             <h2 className="text-2xl font-bold text-white mb-8 text-center drop-shadow-lg flex items-center justify-center gap-3 relative">
               <span className="text-3xl animate-pulse">💡</span>
               Banking FAQs
               <div className="absolute -bottom-2 left-1/4 w-1/2 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full"></div>
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {

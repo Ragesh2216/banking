@@ -379,7 +379,7 @@ const ExploreServices = () => {
                   <Link to="/contact" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:-translate-y-1 shadow-xl hover:shadow-2xl hover:shadow-purple-500/25 flex items-center justify-center group">
                     <Sparkles className="mr-3 w-5 h-5" />
                     Start Free Trial
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="ml-2 w-5 h-5 " />
                   </Link>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

@@ -277,19 +277,19 @@ const Home = () => {
                 Experience banking reimagined. From smart savings to intelligent investments, 
                 we provide everything you need to grow your wealth securely.
               </p>
+<div className="flex justify-center mb-4">
+          <Link to="/login" 
+            className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center group no-underline animate-fade-in-up"
+            style={{ animationDelay: '700ms' }}
+          >
+            <span className="flex items-center">
+              Start Banking Free
+              <ArrowRight className="ml-3 w-5 h-5 " />
+            </span>
+          </Link>
+        </div>
 
-              <div className={`flex flex-col sm:flex-row gap-4 transition-all duration-1000 delay-700 ${
-                shouldAnimate('hero') ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-              }`}>
-                <Link to="/login" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center justify-center group">
-                  Start Banking Free
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link to="/404" className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg flex items-center justify-center">
-                  <Smartphone className="mr-2 w-5 h-5" />
-                  Download App
-                </Link>
-              </div>
+        
 
               {/* Quick Stats */}
               <div className={`grid grid-cols-2 sm:grid-cols-3 gap-4 mt-12 pt-8 border-t border-gray-200 transition-all duration-1000 delay-900 ${

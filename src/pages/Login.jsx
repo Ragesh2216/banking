@@ -18,6 +18,7 @@ export default function Login() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,11 +101,35 @@ export default function Login() {
     }
     
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0; // Returns true if no errors
+    return Object.keys(errors).length === 0;
+  };
+
+  // Check if form is valid for button disabling
+  const isFormValid = () => {
+    if (isLogin) {
+      return formData.email && formData.password && !validationErrors.email && !validationErrors.password;
+    } else {
+      return (
+        formData.firstName.trim() &&
+        formData.lastName.trim() &&
+        formData.email &&
+        formData.password &&
+        formData.confirmPassword &&
+        formData.password === formData.confirmPassword &&
+        formData.agreeToTerms &&
+        !validationErrors.firstName &&
+        !validationErrors.lastName &&
+        !validationErrors.email &&
+        !validationErrors.password &&
+        !validationErrors.confirmPassword &&
+        !validationErrors.agreeToTerms
+      );
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitted(true);
     
     // Validate form before submission
     if (!validateForm()) {
@@ -113,7 +138,7 @@ export default function Login() {
       if (firstError) {
         document.getElementById(firstError)?.focus();
       }
-      return; // Stop form submission
+      return;
     }
     
     setIsLoading(true);
@@ -139,9 +164,15 @@ export default function Login() {
         agreeToTerms: false,
         accountType: ""
       });
-      setValidationErrors({}); // Clear all validation errors
+      setValidationErrors({});
+      setIsSubmitted(false);
       setIsVisible(true);
     }, 300);
+  };
+
+  // Helper function to check if field should show error
+  const shouldShowError = (fieldName) => {
+    return isSubmitted || validationErrors[fieldName];
   };
 
   return (
@@ -151,7 +182,7 @@ export default function Login() {
         {isMobile && (
           <button 
             onClick={() => navigate(-1)}
-            className="fixed top-4 left-4 z-50 w-8 h-8 bg-blue-950/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-blue-700"
+            className="fixed top-4 left-4 z-50 w-10 h-10 bg-blue-950/80 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-blue-700 text-lg active:bg-blue-800 transition-colors"
           >
             ←
           </button>
@@ -292,12 +323,12 @@ export default function Login() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                        validationErrors.firstName ? 'border-red-500' : 'border-blue-700'
+                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        shouldShowError('firstName') && validationErrors.firstName ? 'border-red-500' : 'border-blue-700'
                       }`}
                       placeholder="John"
                     />
-                    {validationErrors.firstName && (
+                    {shouldShowError('firstName') && validationErrors.firstName && (
                       <p className="text-red-400 text-[10px] mt-1 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -316,12 +347,12 @@ export default function Login() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                        validationErrors.lastName ? 'border-red-500' : 'border-blue-700'
+                      className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        shouldShowError('lastName') && validationErrors.lastName ? 'border-red-500' : 'border-blue-700'
                       }`}
                       placeholder="Doe"
                     />
-                    {validationErrors.lastName && (
+                    {shouldShowError('lastName') && validationErrors.lastName && (
                       <p className="text-red-400 text-[10px] mt-1 flex items-center">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -344,12 +375,12 @@ export default function Login() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                    validationErrors.email ? 'border-red-500' : 'border-blue-700'
+                  className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                    shouldShowError('email') && validationErrors.email ? 'border-red-500' : 'border-blue-700'
                   }`}
                   placeholder="email@domain.com"
                 />
-                {validationErrors.email && (
+                {shouldShowError('email') && validationErrors.email && (
                   <p className="text-red-400 text-[10px] mt-1 flex items-center">
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -370,7 +401,7 @@ export default function Login() {
                     name="accountType"
                     value={formData.accountType}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm"
+                    className="w-full px-3 py-3 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm"
                   >
                     <option value="">Select type</option>
                     <option value="personal">Personal</option>
@@ -393,8 +424,8 @@ export default function Login() {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
-                      validationErrors.password ? 'border-red-500' : 'border-blue-700'
+                    className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
+                      shouldShowError('password') && validationErrors.password ? 'border-red-500' : 'border-blue-700'
                     }`}
                     placeholder="••••••••"
                   />
@@ -405,7 +436,7 @@ export default function Login() {
                   </div>
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">8+ chars, uppercase, lowercase & numbers</p>
-                {validationErrors.password && (
+                {shouldShowError('password') && validationErrors.password && (
                   <p className="text-red-400 text-[10px] mt-1 flex items-center">
                     <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -427,13 +458,13 @@ export default function Login() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                      validationErrors.confirmPassword ? 'border-red-500' : 'border-blue-700'
+                    className={`w-full px-3 py-3 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                      shouldShowError('confirmPassword') && validationErrors.confirmPassword ? 'border-red-500' : 'border-blue-700'
                     }`}
                     placeholder="••••••••"
                   />
                   {/* Error message */}
-                  {validationErrors.confirmPassword && (
+                  {shouldShowError('confirmPassword') && validationErrors.confirmPassword && (
                     <p className="text-red-400 text-[10px] mt-1 flex items-center">
                       <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -454,7 +485,7 @@ export default function Login() {
                         name="rememberMe"
                         checked={formData.rememberMe}
                         onChange={handleInputChange}
-                        className="w-3 h-3 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500"
                       />
                       <span className="ml-2 text-xs text-gray-300">Remember device</span>
                     </label>
@@ -469,8 +500,8 @@ export default function Login() {
                       name="agreeToTerms"
                       checked={formData.agreeToTerms}
                       onChange={handleInputChange}
-                      className={`w-3 h-3 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0 ${
-                        validationErrors.agreeToTerms ? 'border-red-500' : ''
+                      className={`w-4 h-4 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0 ${
+                        shouldShowError('agreeToTerms') && validationErrors.agreeToTerms ? 'border-red-500' : ''
                       }`}
                     />
                     <span className="ml-2 text-xs text-gray-300">
@@ -482,7 +513,7 @@ export default function Login() {
                       <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
                         Policy
                       </Link>
-                      {validationErrors.agreeToTerms && (
+                      {shouldShowError('agreeToTerms') && validationErrors.agreeToTerms && (
                         <span className="block text-red-400 text-[10px] mt-1 flex items-center">
                           <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
@@ -498,22 +529,8 @@ export default function Login() {
               {/* Submit Button */}
               <button 
                 type="submit"
-                disabled={isLoading || (!isLogin && (
-                  !formData.firstName ||
-                  !formData.lastName ||
-                  !formData.email ||
-                  !formData.password ||
-                  !formData.confirmPassword ||
-                  formData.password !== formData.confirmPassword ||
-                  !formData.agreeToTerms ||
-                  validationErrors.firstName ||
-                  validationErrors.lastName ||
-                  validationErrors.email ||
-                  validationErrors.password ||
-                  validationErrors.confirmPassword ||
-                  validationErrors.agreeToTerms
-                ))}
-                className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fade-in-up text-sm ${
+                disabled={isLoading || !isFormValid()}
+                className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fade-in-up text-sm active:scale-95 ${
                   isLoading ? 'animate-pulse' : ''
                 }`}
                 style={{ animationDelay: '500ms' }}
@@ -556,7 +573,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => navigate('/404')}
-                  className="w-full bg-blue-900 border border-blue-800 text-gray-300 py-2 px-3 rounded-lg font-medium hover:bg-blue-800 transition-all duration-300 flex items-center justify-center gap-2 text-xs"
+                  className="w-full bg-blue-900 border border-blue-800 text-gray-300 py-2 px-3 rounded-lg font-medium hover:bg-blue-800 transition-all duration-300 flex items-center justify-center gap-2 text-xs active:scale-95"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M16.5 1.25a1.5 1.5 0 0 1 1.5 1.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-9a1.5 1.5 0 0 1-1.5-1.5v-1.5a1.5 1.5 0 0 1 1.5-1.5h9z"/>
@@ -573,7 +590,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={toggleAuthMode}
-                    className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300 text-sm"
+                    className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300 text-sm active:scale-95"
                   >
                     {isLogin ? "Open an account" : "Sign in"}
                   </button>
@@ -656,6 +673,26 @@ export default function Login() {
           animation: pulse-slow 6s ease-in-out infinite;
         }
         
+        /* Mobile-specific touch improvements */
+        @media (max-width: 768px) {
+          input, select, textarea, button {
+            min-height: 44px !important; /* Apple's recommended minimum touch target */
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+          }
+          
+          button {
+            touch-action: manipulation; /* Improves touch response */
+          }
+          
+          .text-xs {
+            font-size: 12px !important;
+          }
+          
+          .text-sm {
+            font-size: 14px !important;
+          }
+        }
+        
         /* 320px specific fixes */
         @media (max-width: 320px) {
           .text-2xl {
@@ -665,10 +702,10 @@ export default function Login() {
             font-size: 1rem !important;
           }
           .text-sm {
-            font-size: 0.75rem !important;
+            font-size: 12px !important;
           }
           .text-xs {
-            font-size: 0.65rem !important;
+            font-size: 10px !important;
           }
           .p-4 {
             padding: 0.75rem !important;
@@ -678,22 +715,60 @@ export default function Login() {
             padding-right: 0.5rem !important;
           }
           .py-2 {
-            padding-top: 0.375rem !important;
-            padding-bottom: 0.375rem !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+          }
+          .py-3 {
+            padding-top: 0.625rem !important;
+            padding-bottom: 0.625rem !important;
           }
           .gap-4 > * {
             margin-top: 0.5rem !important;
           }
           input, select, button {
-            font-size: 0.75rem !important;
+            font-size: 14px !important;
+            min-height: 44px !important;
+          }
+          
+          /* Adjust spacing for very small screens */
+          .space-y-4 > * + * {
+            margin-top: 0.75rem !important;
+          }
+          
+          /* Make back button larger for touch */
+          .fixed.top-4.left-4 {
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 20px !important;
+          }
+          
+          /* Adjust form padding */
+          .p-4 {
+            padding: 1rem !important;
           }
         }
         
-        /* Better touch targets for mobile */
+        /* Prevent zoom on input focus in iOS */
         @media (max-width: 768px) {
-          input, select, button {
-            min-height: 40px;
+          input[type="text"],
+          input[type="email"],
+          input[type="password"],
+          textarea,
+          select {
+            font-size: 16px !important;
           }
+        }
+        
+        /* Better touch targets for all interactive elements */
+        button, a, input[type="checkbox"], input[type="radio"] {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        
+        /* Improve checkbox touch targets */
+        input[type="checkbox"] {
+          min-height: 20px;
+          min-width: 20px;
         }
       `}</style>
     </div>

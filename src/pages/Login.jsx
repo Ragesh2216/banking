@@ -101,7 +101,7 @@ export default function Login() {
     }
     
     setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
+    return Object.keys(errors).length === 0; // Returns true if no errors
   };
 
   // Check if form is valid for button disabling
@@ -129,7 +129,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsSubmitted(true); // Mark form as submitted
     
     // Validate form before submission
     if (!validateForm()) {
@@ -138,7 +138,7 @@ export default function Login() {
       if (firstError) {
         document.getElementById(firstError)?.focus();
       }
-      return;
+      return; // Stop form submission
     }
     
     setIsLoading(true);
@@ -164,14 +164,16 @@ export default function Login() {
         agreeToTerms: false,
         accountType: ""
       });
-      setValidationErrors({});
-      setIsSubmitted(false);
+      setValidationErrors({}); // Clear all validation errors
+      setIsSubmitted(false); // Reset submitted state
       setIsVisible(true);
     }, 300);
   };
 
   // Helper function to check if field should show error
   const shouldShowError = (fieldName) => {
+    // For login mode, show errors after form submission or if field was touched
+    // For signup mode, always show validation errors
     return isSubmitted || validationErrors[fieldName];
   };
 
@@ -673,26 +675,6 @@ export default function Login() {
           animation: pulse-slow 6s ease-in-out infinite;
         }
         
-        /* Mobile-specific touch improvements */
-        @media (max-width: 768px) {
-          input, select, textarea, button {
-            min-height: 44px !important; /* Apple's recommended minimum touch target */
-            font-size: 16px !important; /* Prevents iOS zoom on focus */
-          }
-          
-          button {
-            touch-action: manipulation; /* Improves touch response */
-          }
-          
-          .text-xs {
-            font-size: 12px !important;
-          }
-          
-          .text-sm {
-            font-size: 14px !important;
-          }
-        }
-        
         /* 320px specific fixes */
         @media (max-width: 320px) {
           .text-2xl {
@@ -702,10 +684,10 @@ export default function Login() {
             font-size: 1rem !important;
           }
           .text-sm {
-            font-size: 12px !important;
+            font-size: 0.75rem !important;
           }
           .text-xs {
-            font-size: 10px !important;
+            font-size: 0.65rem !important;
           }
           .p-4 {
             padding: 0.75rem !important;
@@ -714,19 +696,15 @@ export default function Login() {
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
           }
-          .py-2 {
+          .py-3 {
             padding-top: 0.5rem !important;
             padding-bottom: 0.5rem !important;
-          }
-          .py-3 {
-            padding-top: 0.625rem !important;
-            padding-bottom: 0.625rem !important;
           }
           .gap-4 > * {
             margin-top: 0.5rem !important;
           }
           input, select, button {
-            font-size: 14px !important;
+            font-size: 0.75rem !important;
             min-height: 44px !important;
           }
           
@@ -741,10 +719,25 @@ export default function Login() {
             height: 44px !important;
             font-size: 20px !important;
           }
+        }
+        
+        /* Mobile-specific touch improvements */
+        @media (max-width: 768px) {
+          input, select, textarea, button {
+            min-height: 44px !important;
+            font-size: 16px !important;
+          }
           
-          /* Adjust form padding */
-          .p-4 {
-            padding: 1rem !important;
+          button {
+            touch-action: manipulation;
+          }
+          
+          .text-xs {
+            font-size: 12px !important;
+          }
+          
+          .text-sm {
+            font-size: 14px !important;
           }
         }
         

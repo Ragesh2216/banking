@@ -1,191 +1,18 @@
 import React, { useState, useEffect } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import www from '../images/www.webp';
 import abi from '../images/abi.webp';
 import ceo from '../images/ceo.webp';
 import soe from '../images/yuva.webp';
-
 const About = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
-  // ================== SMOOTH SCROLL EFFECT ==================
-  useEffect(() => {
-    // Enhanced smooth scroll function
-    const smoothScrollTo = (targetElement, duration = 800) => {
-      const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-      const startPosition = window.pageYOffset;
-      const distance = targetPosition - startPosition - 80; // Adjust for header
-      let startTime = null;
-
-      const easeInOutCubic = (t) => {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      };
-
-      const animation = (currentTime) => {
-        if (startTime === null) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-        const easeProgress = easeInOutCubic(progress);
-        
-        window.scrollTo(0, startPosition + distance * easeProgress);
-        
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        }
-      };
-
-      requestAnimationFrame(animation);
-    };
-
-    // Handle all smooth scroll clicks
-    const handleSmoothScrollClick = (e) => {
-      // Check if click is on a button that should trigger smooth scroll
-      const button = e.target.closest('button');
-      
-      if (button && button.onclick) {
-        const onclickText = button.onclick.toString();
-        
-        // Check for smoothNavigate function calls
-        if (onclickText.includes('smoothNavigate')) {
-          const match = onclickText.match(/smoothNavigate\('([^']+)'\)/);
-          if (match) {
-            const path = match[1];
-            // If it's an anchor link, handle smooth scroll
-            if (path.startsWith('#')) {
-              e.preventDefault();
-              const targetId = path.substring(1);
-              const targetElement = document.getElementById(targetId);
-              if (targetElement) {
-                if ('scrollBehavior' in document.documentElement.style) {
-                  window.scrollTo({
-                    top: targetElement.offsetTop - 80,
-                    behavior: 'smooth'
-                  });
-                } else {
-                  smoothScrollTo(targetElement);
-                }
-              }
-            }
-          }
-        }
-      }
-    };
-
-    // Mobile-specific optimizations
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      // Improve touch scrolling
-      document.documentElement.style.scrollBehavior = 'smooth';
-      document.body.style.scrollBehavior = 'smooth';
-    }
-
-    // Add CSS for smooth scroll
-    const style = document.createElement('style');
-    style.textContent = `
-      /* Enable smooth scrolling */
-      html {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-      }
-      
-      /* Mobile optimizations */
-      @media (max-width: 768px) {
-        html {
-          scroll-behavior: smooth !important;
-        }
-        
-        body {
-          overscroll-behavior-y: contain;
-          -webkit-font-smoothing: antialiased;
-        }
-        
-        /* Improve scroll performance */
-        * {
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        button {
-          touch-action: manipulation;
-        }
-      }
-      
-      /* Smooth transitions */
-      .smooth-scroll {
-        scroll-behavior: smooth;
-      }
-      
-      /* Fix for iOS Safari */
-      @supports (-webkit-touch-callout: none) {
-        .min-h-screen {
-          min-height: -webkit-fill-available;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Add event listener
-    document.addEventListener('click', handleSmoothScrollClick, true);
-
-    return () => {
-      document.removeEventListener('click', handleSmoothScrollClick, true);
-      document.head.removeChild(style);
-      
-      // Cleanup styles
-      document.documentElement.style.scrollBehavior = '';
-      document.body.style.scrollBehavior = '';
-    };
-  }, []);
-
   useEffect(() => {
     setIsVisible(true);
   }, []);
-
-  // ================== ENHANCED NAVIGATION FUNCTION ==================
-  const smoothNavigate = (path) => {
-    // If it's an anchor link (starts with #)
-    if (path.startsWith('#')) {
-      const targetElement = document.getElementById(path.substring(1));
-      if (targetElement) {
-        if ('scrollBehavior' in document.documentElement.style) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: 'smooth'
-          });
-        } else {
-          // Fallback animation
-          const start = window.pageYOffset;
-          const target = targetElement.offsetTop - 80;
-          const duration = 800;
-          let startTime = null;
-
-          const animateScroll = (currentTime) => {
-            if (startTime === null) startTime = currentTime;
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Cubic ease in/out
-            const ease = progress < 0.5 
-              ? 4 * progress * progress * progress 
-              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-              
-            window.scrollTo(0, start + (target - start) * ease);
-            
-            if (progress < 1) {
-              requestAnimationFrame(animateScroll);
-            }
-          };
-          
-          requestAnimationFrame(animateScroll);
-        }
-      }
-    } else {
-      // Regular page navigation
-      navigate(path);
-    }
-  };
 
   const sections = [
     {
@@ -332,7 +159,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 relative overflow-hidden smooth-scroll">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 relative overflow-hidden">
       {/* Floating Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
@@ -507,76 +334,75 @@ const About = () => {
           </div>
         </section>
 
-        {/* Leadership Team Section */}
-        <section className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mb-4 animate-fade-in-up">
-              Executive Leadership Team
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-              Meet the experienced financial professionals leading TrustBank's commitment to excellence
-            </p>
-          </div>
+       {/* Leadership Team Section */}
+<section className="mb-16">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent mb-4 animate-fade-in-up">
+      Executive Leadership Team
+    </h2>
+    <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+      Meet the experienced financial professionals leading TrustBank's commitment to excellence
+    </p>
+  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {leadershipTeam.map((member, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-fade-in-up group border border-blue-100"
-                style={{ animationDelay: `${index * 150 + 400}ms` }}
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {leadershipTeam.map((member, index) => (
+      <div 
+        key={index} 
+        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 animate-fade-in-up group border border-blue-100"
+        style={{ animationDelay: `${index * 150 + 400}ms` }}
+      >
+        {/* Image Container - Updated for centering */}
+        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+          <img 
+            src={member.image} 
+            alt={member.name}
+            className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg transition-transform duration-500 group-hover:scale-110"
+            style={{ 
+              objectPosition: 'center',
+              minWidth: '128px',
+              minHeight: '128px'
+            }}
+          />
+          {/* Role Badge */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+            <span className="bg-white/90 backdrop-blur-sm text-blue-800 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+              {member.role.split(' ')[0]}
+            </span>
+          </div>
+          {/* Gradient Overlay */}
+          <div className={`absolute inset-0 bg-gradient-to-t from-blue-900/10 via-transparent to-transparent opacity-60`}></div>
+        </div>
+        
+        {/* Content */}
+        <div className="p-6 text-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">
+            {member.name}
+          </h3>
+          <p className={`font-semibold mb-3 bg-gradient-to-r ${member.color} bg-clip-text text-transparent text-sm`}>
+            {member.role}
+          </p>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+            {member.bio}
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {member.expertise.map((skill, skillIndex) => (
+              <span 
+                key={skillIndex} 
+                className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium group-hover:scale-105 transition-transform duration-300"
               >
-                {/* Image Container */}
-                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                  <img 
-                    src={member.image} 
-                    alt={member.name}
-                    className="w-32 h-32 object-cover rounded-full border-4 border-white shadow-lg transition-transform duration-500 group-hover:scale-110"
-                    style={{ 
-                      objectPosition: 'center',
-                      minWidth: '128px',
-                      minHeight: '128px'
-                    }}
-                  />
-                  {/* Role Badge */}
-                  <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-white/90 backdrop-blur-sm text-blue-800 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-                      {member.role.split(' ')[0]}
-                    </span>
-                  </div>
-                  {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-t from-blue-900/10 via-transparent to-transparent opacity-60`}></div>
-                </div>
-                
-                {/* Content */}
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors duration-300">
-                    {member.name}
-                  </h3>
-                  <p className={`font-semibold mb-3 bg-gradient-to-r ${member.color} bg-clip-text text-transparent text-sm`}>
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 text-sm mb-4 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
-                    {member.bio}
-                  </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {member.expertise.map((skill, skillIndex) => (
-                      <span 
-                        key={skillIndex} 
-                        className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium group-hover:scale-105 transition-transform duration-300"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Animated border */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300 transition-all duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"></div>
-              </div>
+                {skill}
+              </span>
             ))}
           </div>
-        </section>
-
+        </div>
+        
+        {/* Animated border */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-blue-300 transition-all duration-500 opacity-0 group-hover:opacity-100 pointer-events-none"></div>
+      </div>
+    ))}
+  </div>
+</section>
         {/* Commitment Section */}
         <section className="mb-16">
           <div className="bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 rounded-2xl p-8 text-white transform hover:-translate-y-1 transition-all duration-500 animate-fade-in-up border border-blue-600" style={{ animationDelay: '600ms' }}>
@@ -633,7 +459,7 @@ const About = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
-                onClick={() => smoothNavigate('/accounts')}
+                onClick={() => navigate('/accounts')}
                 className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl animate-pulse-slow flex items-center justify-center gap-2"
               >
                 <span>Open an Account</span>
@@ -641,7 +467,7 @@ const About = () => {
               </button>
               
               <button 
-                onClick={() => smoothNavigate('/contact')}
+                onClick={() => navigate('/contact')}
                 className="border-2 border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
               >
                 <span>Contact Our Advisors</span>
@@ -722,5 +548,5 @@ const About = () => {
     </div>
   );
 };
-
+ 
 export default About;

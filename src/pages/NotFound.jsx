@@ -11,7 +11,7 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="min-h-screen mt-8 bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center p-4">
       <div className={`max-w-md w-full text-center transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         
         {/* 404 Number */}

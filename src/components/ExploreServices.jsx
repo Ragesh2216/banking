@@ -370,20 +370,7 @@ const ExploreServices = () => {
                 No branches, no paperwork, just seamless banking powered by technology.
               </motion.p>
 
-             <motion.div 
-  className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-  variants={fadeInUp}
-  transition={{ delay: 0.4 }}
->
-  
-  
-  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-    <Link to="/404" className="px-8 py-4 bg-white/5 text-white rounded-xl font-semibold text-lg border border-white/10 hover:bg-white/10 transition-all hover:shadow-lg backdrop-blur-sm flex items-center justify-center">
-      <Smartphone className="mr-2 w-5 h-5" />
-      Watch Demo
-    </Link>
-  </motion.div>
-</motion.div>
+            
               {/* App Store Badges */}
               <motion.div 
                 className="flex gap-4 mt-8"

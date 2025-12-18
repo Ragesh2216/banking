@@ -277,17 +277,7 @@ const Home = () => {
                 Experience banking reimagined. From smart savings to intelligent investments, 
                 we provide everything you need to grow your wealth securely.
               </p>
-<div className="flex flex-col sm:flex-row gap-4">
-  {/* Centered Button */}
-  <div className="flex justify-center w-full">
-    <Link to="/404" className="px-8 py-4  bg-gradient-to-r from-blue-600 to-indigo-600 text-gray-800 rounded-xl font-semibold text-lg border-2 border-gray-200 hover:border-blue-300 transition-all hover:shadow-lg flex items-center justify-center">
-    <Smartphone className="mr-2 w-5 h-5" />
-    Download App
-  </Link >
-  </div>
-  
- 
-</div>
+
 
 
         

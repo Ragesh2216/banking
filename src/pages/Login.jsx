@@ -17,6 +17,7 @@ export default function Login() {
     accountType: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,12 +42,83 @@ export default function Login() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+    
+    // Special case for confirmPassword - also clear password error if user fixes it
+    if (name === 'confirmPassword' || name === 'password') {
+      if (validationErrors.confirmPassword) {
+        setValidationErrors(prev => ({
+          ...prev,
+          confirmPassword: ''
+        }));
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    // Common validations for both login and signup
+    if (!formData.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    if (!formData.password) {
+      errors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    }
+    
+    // Signup specific validations
+    if (!isLogin) {
+      if (!formData.firstName.trim()) {
+        errors.firstName = "First name is required";
+      }
+      
+      if (!formData.lastName.trim()) {
+        errors.lastName = "Last name is required";
+      }
+      
+      if (!formData.confirmPassword) {
+        errors.confirmPassword = "Please confirm your password";
+      } else if (formData.password !== formData.confirmPassword) {
+        errors.confirmPassword = "Passwords don't match";
+      }
+      
+      if (!formData.agreeToTerms) {
+        errors.agreeToTerms = "You must agree to the terms and conditions";
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0; // Returns true if no errors
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      // Optional: Scroll to first error
+      const firstError = Object.keys(validationErrors)[0];
+      if (firstError) {
+        document.getElementById(firstError)?.focus();
+      }
+      return; // Stop form submission
+    }
+    
     setIsLoading(true);
     
+    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       navigate('/404');
@@ -67,12 +139,13 @@ export default function Login() {
         agreeToTerms: false,
         accountType: ""
       });
+      setValidationErrors({}); // Clear all validation errors
       setIsVisible(true);
     }, 300);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br  mt-16 from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-3 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br mt-16 from-blue-900 via-blue-800 to-blue-900 flex items-center justify-center p-3 overflow-x-hidden">
       <div className="w-full max-w-6xl mx-auto">
         {/* Mobile-only back button */}
         {isMobile && (
@@ -219,10 +292,19 @@ export default function Login() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      required={!isLogin}
-                      className="w-full px-3 py-2 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400"
+                      className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        validationErrors.firstName ? 'border-red-500' : 'border-blue-700'
+                      }`}
                       placeholder="John"
                     />
+                    {validationErrors.firstName && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.firstName}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="lastName" className="block text-xs font-medium text-gray-300 mb-1">
@@ -234,10 +316,19 @@ export default function Login() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      required={!isLogin}
-                      className="w-full px-3 py-2 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400"
+                      className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                        validationErrors.lastName ? 'border-red-500' : 'border-blue-700'
+                      }`}
                       placeholder="Doe"
                     />
+                    {validationErrors.lastName && (
+                      <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {validationErrors.lastName}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -253,10 +344,19 @@ export default function Login() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400"
+                  className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
+                    validationErrors.email ? 'border-red-500' : 'border-blue-700'
+                  }`}
                   placeholder="email@domain.com"
                 />
+                {validationErrors.email && (
+                  <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {validationErrors.email}
+                  </p>
+                )}
               </div>
 
               {/* Account Type - Only for Signup */}
@@ -293,8 +393,9 @@ export default function Login() {
                     name="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 bg-blue-900 border border-blue-700 text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10"
+                    className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 pr-10 ${
+                      validationErrors.password ? 'border-red-500' : 'border-blue-700'
+                    }`}
                     placeholder="••••••••"
                   />
                   <div className="absolute right-2 top-2 text-blue-400">
@@ -304,6 +405,14 @@ export default function Login() {
                   </div>
                 </div>
                 <p className="text-[10px] text-gray-400 mt-1">8+ chars, uppercase, lowercase & numbers</p>
+                {validationErrors.password && (
+                  <p className="text-red-400 text-[10px] mt-1 flex items-center">
+                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {validationErrors.password}
+                  </p>
+                )}
               </div>
 
               {/* Confirm Password - Only for Signup */}
@@ -318,21 +427,18 @@ export default function Login() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    required={!isLogin}
                     className={`w-full px-3 py-2 bg-blue-900 border text-white rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-sm placeholder-gray-400 ${
-                      formData.confirmPassword && formData.password !== formData.confirmPassword
-                        ? 'border-red-500'
-                        : 'border-blue-700'
+                      validationErrors.confirmPassword ? 'border-red-500' : 'border-blue-700'
                     }`}
                     placeholder="••••••••"
                   />
                   {/* Error message */}
-                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  {validationErrors.confirmPassword && (
                     <p className="text-red-400 text-[10px] mt-1 flex items-center">
                       <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
-                      Passwords don't match
+                      {validationErrors.confirmPassword}
                     </p>
                   )}
                 </div>
@@ -363,8 +469,9 @@ export default function Login() {
                       name="agreeToTerms"
                       checked={formData.agreeToTerms}
                       onChange={handleInputChange}
-                      required
-                      className="w-3 h-3 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0"
+                      className={`w-3 h-3 text-blue-500 bg-blue-900 border-blue-700 rounded focus:ring-blue-500 mt-0.5 flex-shrink-0 ${
+                        validationErrors.agreeToTerms ? 'border-red-500' : ''
+                      }`}
                     />
                     <span className="ml-2 text-xs text-gray-300">
                       I agree to{" "}
@@ -375,6 +482,14 @@ export default function Login() {
                       <Link to="/404" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
                         Policy
                       </Link>
+                      {validationErrors.agreeToTerms && (
+                        <span className="block text-red-400 text-[10px] mt-1 flex items-center">
+                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          {validationErrors.agreeToTerms}
+                        </span>
+                      )}
                     </span>
                   </label>
                 )}
@@ -383,7 +498,21 @@ export default function Login() {
               {/* Submit Button */}
               <button 
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || (!isLogin && (
+                  !formData.firstName ||
+                  !formData.lastName ||
+                  !formData.email ||
+                  !formData.password ||
+                  !formData.confirmPassword ||
+                  formData.password !== formData.confirmPassword ||
+                  !formData.agreeToTerms ||
+                  validationErrors.firstName ||
+                  validationErrors.lastName ||
+                  validationErrors.email ||
+                  validationErrors.password ||
+                  validationErrors.confirmPassword ||
+                  validationErrors.agreeToTerms
+                ))}
                 className={`w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center animate-fade-in-up text-sm ${
                   isLoading ? 'animate-pulse' : ''
                 }`}

@@ -416,86 +416,96 @@ const Home = () => {
       </section>
 
       {/* Account Types Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50" ref={accountsRef}>
-        <div className="max-w-7xl mx-auto">
-          <div className={`text-center mb-16 transition-all duration-1000 ${
-            shouldAnimate('accounts') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
-          }`}>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Find Your Perfect Account
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Choose from our range of accounts designed for every financial goal.
-            </p>
+<section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-indigo-50" ref={accountsRef}>
+  <div className="max-w-7xl mx-auto">
+    <div className={`text-center mb-16 transition-all duration-1000 ${
+      shouldAnimate('accounts') ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'
+    }`}>
+      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+        Find Your Perfect Account
+      </h2>
+      <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        Choose from our range of accounts designed for every financial goal.
+      </p>
+    </div>
+
+    <div className="grid md:grid-cols-3 gap-8">
+      {accountTypes.map((account, index) => (
+        <div 
+          key={index}
+          className={`bg-white rounded-2xl shadow-xl overflow-hidden transform hover:-translate-y-2 transition-all duration-300 flex flex-col h-full ${
+            shouldAnimate('accounts') ? 
+              (account.direction === 'left' ? 'animate-slide-in-left' : 
+               account.direction === 'right' ? 'animate-slide-in-right' : 
+               'animate-slide-in-top') : 
+              'opacity-0'
+          }`}
+          style={{ animationDelay: `${index * 200}ms` }}
+        >
+          {/* Animated top bar */}
+          <div className={`h-2 ${
+            index === 0 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 
+            index === 1 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 
+            'bg-gradient-to-r from-purple-500 to-pink-500'
+          } relative overflow-hidden`}>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000"></div>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {accountTypes.map((account, index) => (
-              <div 
-                key={index}
-                className={`bg-white rounded-2xl shadow-xl overflow-hidden transform hover:-translate-y-2 transition-all duration-300 ${
-                  shouldAnimate('accounts') ? 
-                    (account.direction === 'left' ? 'animate-slide-in-left' : 
-                     account.direction === 'right' ? 'animate-slide-in-right' : 
-                     'animate-slide-in-top') : 
-                    'opacity-0'
-                }`}
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                {/* Animated top bar */}
-                <div className={`h-2 ${
-                  index === 0 ? 'bg-gradient-to-r from-blue-500 to-cyan-500' : 
-                  index === 1 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : 
-                  'bg-gradient-to-r from-purple-500 to-pink-500'
-                } relative overflow-hidden`}>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000"></div>
+          
+          <div className="p-8 flex flex-col flex-1">
+            {/* Header with fixed height */}
+            <div className="mb-6">
+              <div className="flex justify-between items-start mb-4 min-h-[80px]">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">{account.name}</h3>
+                  <div className="text-3xl font-bold text-gray-900 mt-2">{account.interest}</div>
+                  <div className="text-gray-600 text-sm mt-1">Annual Percentage Yield</div>
                 </div>
-                
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-6">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900">{account.name}</h3>
-                      <div className="text-3xl font-bold text-gray-900 mt-2">{account.interest}</div>
-                      <div className="text-gray-600 mt-1">Annual Percentage Yield</div>
-                    </div>
-                    {index === 0 && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium animate-pulse">
-                        Most Popular
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="mb-8">
-                    <div className="text-sm text-gray-600 mb-2">Minimum Balance</div>
-                    <div className="text-xl font-bold text-gray-900">{account.minBalance}</div>
-                  </div>
-
-                  <div className="space-y-4 mb-8">
-                    {account.features.map((feature, i) => (
-                      <div 
-                        key={i} 
-                        className="flex items-center transform hover:translate-x-2 transition-transform duration-300"
-                        style={{ transitionDelay: `${i * 100}ms` }}
-                      >
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 animate-bounce-slow" />
-                        <span className="text-gray-700">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Link 
-                    to="/login" 
-                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center group"
-                  >
-                    Open Account
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
+                {index === 0 && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium animate-pulse whitespace-nowrap ml-2">
+                    Most Popular
+                  </span>
+                )}
               </div>
-            ))}
+              
+              {/* Minimum Balance */}
+              <div className="mb-6">
+                <div className="text-sm text-gray-600 mb-1">Minimum Balance</div>
+                <div className="text-xl font-bold text-gray-900">{account.minBalance}</div>
+              </div>
+            </div>
+
+            {/* Features list - fixed height container */}
+            <div className="mb-8 flex-1">
+              <div className="space-y-4">
+                {account.features.map((feature, i) => (
+                  <div 
+                    key={i} 
+                    className="flex items-start transform hover:translate-x-2 transition-transform duration-300"
+                    style={{ transitionDelay: `${i * 100}ms` }}
+                  >
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0 animate-bounce-slow" />
+                    <span className="text-gray-700 text-sm leading-relaxed">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Button - always at bottom */}
+            <div className="mt-auto">
+              <Link 
+                to="/login" 
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center group"
+              >
+                Open Account
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* Stats Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-indigo-700" ref={statsRef}>
